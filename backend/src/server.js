@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { protect } from "./middleware/auth.js";
 
 
 import authRoutes from "./routes/authRoutes.js";
@@ -23,6 +24,12 @@ app.use("/api/auth", authRoutes);
 app.get("/health", (req, res) => {
   res.status(200).send("ok"); 
 });
+
+app.get("/api/me", protect, (req, res) => {
+  res.json({ user: req.user });
+});
+
+
 
 // Start server after DB connection
 const PORT = process.env.PORT || 5000;

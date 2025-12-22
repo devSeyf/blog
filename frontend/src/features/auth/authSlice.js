@@ -2,11 +2,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { http } from "../../api/http";
 
 const initialState = {
-  user: null,
-  token: null,
+  user: JSON.parse(localStorage.getItem("user") || "null"),
+  token: localStorage.getItem("token"),
   status: "idle",
   error: null,
 };
+
 
 export const login = createAsyncThunk(
   "auth/login",
@@ -33,7 +34,12 @@ const authSlice = createSlice({
       state.token = null;
       state.status = "idle";
       state.error = null;
+
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
     },
+
   },
 
  
@@ -47,6 +53,11 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.token;
+
+          localStorage.setItem("token", action.payload.token);
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+
+
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
