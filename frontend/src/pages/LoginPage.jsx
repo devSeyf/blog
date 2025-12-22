@@ -7,12 +7,8 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { status, error, user } = useSelector((state) => state.auth);
-    
-    
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-
     useEffect(() => {
         if (user) navigate("/");
     }, [user, navigate]);
@@ -35,7 +31,6 @@ export default function LoginPage() {
                     />
                 </label>
             </div>
-
             <div>
                 <label>
                     Password:
