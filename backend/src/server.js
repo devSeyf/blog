@@ -1,16 +1,12 @@
-// backend/src/server.js
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { protect } from "./middleware/auth.js";
 import postRoutes from "./routes/postRoutes.js";
 
 
 import authRoutes from "./routes/authRoutes.js";
-
-
-dotenv.config();
 
 const app = express();
 
@@ -25,7 +21,7 @@ app.use("/api/posts", postRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
-  res.status(200).send("ok"); 
+  res.status(200).send("ok");
 });
 
 app.get("/api/me", protect, (req, res) => {

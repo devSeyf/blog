@@ -11,9 +11,9 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-const posts = await Post.find()
-  .populate("author", "name email")
-  .sort({ votesCount: -1, createdAt: -1 });
+    const posts = await Post.find()
+      .populate("author", "name email")
+      .sort({ votesCount: -1, createdAt: -1 });
 
     res.json({ posts });
   } catch (err) {
@@ -25,7 +25,17 @@ const posts = await Post.find()
  * POST /api/posts
  * Protected: create post 
  */
-router.post("/", protect, upload.single("image"), async (req, res) => {
+router.post("/", protect, (req, res, next) => {
+  upload.single("image")(req, res, (err) => {
+    if (err) {
+      console.error("Upload Error Details:", err);
+      return res.status(500).json({
+        message: "Image upload failed: " + (err.message || JSON.stringify(err))
+      });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     const { title, content, category } = req.body;
 
