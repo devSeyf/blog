@@ -1,4 +1,6 @@
 # Env
+backend/.env
+frontend/.env
 .env
 .env.local
 .env.*.local
@@ -10,29 +12,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-# Dependencies & build
+# Dependencies
+backend/node_modules
+frontend/node_modules
 node_modules
+
+# Build output
 dist
 dist-ssr
-*.local
+build
 
-# Coverage & cache  
-coverage
-.nyc_output
-.cache
-.parcel-cache
-.npm
-.eslintcache
-
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
