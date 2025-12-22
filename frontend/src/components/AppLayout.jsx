@@ -13,7 +13,8 @@ export default function AppLayout() {
         <Link to="/">Home</Link>
         <Link to="/login">Login</Link>
         <Link to="/profile">Profile</Link>
-          <Link to="/posts">Posts</Link>
+        <Link to="/posts">Posts</Link>
+        <Link to="/posts/new">New Post</Link>
 
         
         <div className="ml-auto flex gap-4">

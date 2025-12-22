@@ -46,4 +46,37 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+
+
+/**
+ * POST /api/posts/:id/vote
+ * Protected: vote for a post (one vote per user)
+ */
+router.post("/:id/vote", protect, async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    // no two vote
+    const alreadyVoted = post.voters.some((v) => v.toString() === userId.toString());
+    if (alreadyVoted) {
+      return res.status(400).json({ message: "You already voted for this post" });
+    }
+
+    post.voters.push(userId);
+    post.votesCount += 1;
+
+    await post.save();
+
+    const populated = await Post.findById(post._id).populate("author", "name email");
+    res.json({ post: populated });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 export default router;
