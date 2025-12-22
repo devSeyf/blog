@@ -1,13 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { http } from "../../api/http";
 
+// --- HELPER FUNCTIONS ---
+const loadAuthFromStorage = () => {
+  try {
+    const user = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    return {
+      user: user ? JSON.parse(user) : null,
+      token: token || null,
+    };
+  } catch (e) {
+    return { user: null, token: null };
+  }
+};
+
+const authData = loadAuthFromStorage();
+
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
-  token: localStorage.getItem("token"),
+  user: authData.user,
+  token: authData.token,
   status: "idle",
   error: null,
 };
-
 
 export const login = createAsyncThunk(
   "auth/login",
@@ -27,7 +42,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
 
- 
   reducers: {
     logout: (state) => {
       state.user = null;
@@ -35,14 +49,12 @@ const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
 
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+      // Cleanup storage
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     },
-
   },
 
- 
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
@@ -50,14 +62,15 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
+        console.log("LOGIN PAYLOAD:", action.payload);
+
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.token;
 
-          localStorage.setItem("token", action.payload.token);
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-
-
+        // Save to storage
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+        localStorage.setItem("token", action.payload.token);
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
