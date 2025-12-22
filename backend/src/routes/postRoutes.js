@@ -47,6 +47,37 @@ router.post("/", protect, async (req, res) => {
 });
 
 
+// GET /api/posts/mine  (Protected) - My posts
+router.get("/mine", protect, async (req, res) => {
+  try {
+    const posts = await Post.find({ author: req.user._id })
+      .populate("author", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// GET /api/posts/voted (Protected) - Posts I voted for
+router.get("/voted", protect, async (req, res) => {
+  try {
+    const posts = await Post.find({ voters: req.user._id })
+      .populate("author", "name email")
+      .sort({ updatedAt: -1 });
+
+    res.json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
 
 /**
  * POST /api/posts/:id/vote
