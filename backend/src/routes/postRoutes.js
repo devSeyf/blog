@@ -10,9 +10,9 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate("author", "name email")
-      .sort({ createdAt: -1 });
+const posts = await Post.find()
+  .populate("author", "name email")
+  .sort({ votesCount: -1, createdAt: -1 });
 
     res.json({ posts });
   } catch (err) {
