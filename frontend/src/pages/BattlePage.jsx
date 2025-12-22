@@ -2,155 +2,230 @@ import { useEffect, useMemo, useState } from "react";
 import { http } from "../api/http";
 
 export default function BattlePage() {
-  const [left, setLeft] = useState(null);
-  const [right, setRight] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [voted, setVoted] = useState(false);
-  const [error, setError] = useState(null);
+    const [left, setLeft] = useState(null);
+    const [right, setRight] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [voted, setVoted] = useState(false);
+    const [error, setError] = useState(null);
 
-  async function loadBattle() {
-    setLoading(true);
-    setError(null);
-    setVoted(false);
 
-    try {
- 
-      const res = await http.get("/posts");
-      const all = res.data.posts || [];
+    const [animatedSide, setAnimatedSide] = useState(null);
 
-      if (all.length < 2) {
-        setError("Need at least 2 posts to start a battle.");
-        setLeft(null);
-        setRight(null);
-        return;
-      }
 
-      const a = all[Math.floor(Math.random() * all.length)];
-      let b = all[Math.floor(Math.random() * all.length)];
-      while (b._id === a._id) b = all[Math.floor(Math.random() * all.length)];
 
-      setLeft(a);
-      setRight(b);
-    } catch (e) {
-      setError(e.response?.data?.message || e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
+    async function loadBattle() {
+        setLoading(true);
+        setError(null);
+        setVoted(false);
+        setAnimatedSide(null);
+        try {
 
-  useEffect(() => {
-    loadBattle();
-  }, []);
+            const res = await http.get("/posts");
+            const all = res.data.posts || [];
 
-  const leftVotes = left?.votesCount ?? 0;
-  const rightVotes = right?.votesCount ?? 0;
+            if (all.length < 2) {
+                setError("Need at least 2 posts to start a battle.");
+                setLeft(null);
+                setRight(null);
+                return;
+            }
 
-  const { leftPercent, rightPercent } = useMemo(() => {
-    const total = leftVotes + rightVotes;
-    const lp = total === 0 ? 0 : Math.round((leftVotes / total) * 100);
-    return { leftPercent: lp, rightPercent: 100 - lp };
-  }, [leftVotes, rightVotes]);
+            const a = all[Math.floor(Math.random() * all.length)];
+            let b = all[Math.floor(Math.random() * all.length)];
+            while (b._id === a._id) b = all[Math.floor(Math.random() * all.length)];
 
-async function vote(postId) {
-  try {
-    const res = await http.post(`/posts/${postId}/vote`);
-    const updated = res.data.post || res.data;
-
-    if (left && updated._id === left._id) setLeft(updated);
-    if (right && updated._id === right._id) setRight(updated);
-
-    setVoted(true);
-  } catch (e) {
-    const msg = e.response?.data?.message || e.message;
-
-    
-    if (msg.toLowerCase().includes("already voted")) {
-     
-      const postsRes = await http.get("/posts");
-      const all = postsRes.data.posts || [];
-
-      const newLeft = all.find(p => p._id === left._id);
-      const newRight = all.find(p => p._id === right._id);
-
-      if (newLeft) setLeft(newLeft);
-      if (newRight) setRight(newRight);
-
-      setVoted(true);  
-      return;
+            setLeft(a);
+            setRight(b);
+        } catch (e) {
+            setError(e.response?.data?.message || e.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    setError(msg);
-  }
-}
+    useEffect(() => {
+        loadBattle();
+    }, []);
 
-  if (loading) return <div>Loading battle...</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
-  if (!left || !right) return null;
+    const leftVotes = left?.votesCount ?? 0;
+    const rightVotes = right?.votesCount ?? 0;
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Blog Battle</h1>
-      <p className="text-gray-600">
-        Vote for the better post. After voting, you’ll see the % result.
-      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* LEFT */}
-        <div className="border p-4 rounded space-y-3">
-          <div className="text-sm text-gray-500">By {left.author?.name || "Unknown"}</div>
-          <h2 className="text-xl font-semibold">{left.title}</h2>
-          <p>{left.content}</p>
+    const isLeftWinner = leftVotes > rightVotes;
+    const isRightWinner = rightVotes > leftVotes;
+    const isTie = leftVotes === rightVotes;
 
-          <div className="text-sm text-gray-600">Votes: {leftVotes}</div>
 
-          {!voted ? (
-            <button
-              onClick={() => vote(left._id)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Vote Left
-            </button>
-          ) : (
-            <div className="font-semibold">Left: {leftPercent}%</div>
-          )}
+
+
+
+
+    const { leftPercent, rightPercent } = useMemo(() => {
+        const total = leftVotes + rightVotes;
+        const lp = total === 0 ? 0 : Math.round((leftVotes / total) * 100);
+        return { leftPercent: lp, rightPercent: 100 - lp };
+    }, [leftVotes, rightVotes]);
+
+    async function vote(postId) {
+        try {
+            const res = await http.post(`/posts/${postId}/vote`);
+            const updated = res.data.post || res.data;
+
+            if (left && updated._id === left._id) setLeft(updated);
+            if (right && updated._id === right._id) setRight(updated);
+
+            setVoted(true);
+
+            setAnimatedSide(
+                left && postId === left._id ? "left" : "right"
+            );
+
+            // after 0.5 remove
+            setTimeout(() => setAnimatedSide(null), 500);
+
+
+
+        } catch (e) {
+            const msg = e.response?.data?.message || e.message;
+
+
+            if (msg.toLowerCase().includes("already voted")) {
+
+                const postsRes = await http.get("/posts");
+                const all = postsRes.data.posts || [];
+
+                const newLeft = all.find(p => p._id === left._id);
+                const newRight = all.find(p => p._id === right._id);
+
+                if (newLeft) setLeft(newLeft);
+                if (newRight) setRight(newRight);
+
+                setVoted(true);
+                return;
+            }
+
+            setError(msg);
+        }
+    }
+
+    if (loading) return <div>Loading battle...</div>;
+    if (error) return <div className="text-red-600">Error: {error}</div>;
+    if (!left || !right) return null;
+
+    return (
+        <div className="max-w-5xl mx-auto space-y-6">
+            <h1 className="text-3xl font-bold">Blog Battle</h1>
+            <p className="text-gray-600">
+                Vote for the better post. After voting, you’ll see the % result.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* LEFT */}
+                <div
+                    className={`border p-4 rounded space-y-3 transition-transform duration-300
+  ${isLeftWinner ? "border-yellow-400 shadow" : ""}
+  ${animatedSide === "left" ? "scale-105 animate-pulse" : ""}
+  `}
+                >
+                    {/* BADGE */}
+                {voted && isLeftWinner && (
+                <span className="inline-block px-2 py-1 text-xs font-semibold bg-yellow-400 text-black rounded">
+                    Winner
+                </span>
+                )}
+                {voted && isTie && (
+                <span className="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-black rounded">
+                    Tie
+                </span>
+                )}
+
+
+                    <div className="text-sm text-gray-500">By {left.author?.name || "Unknown"}</div>
+                    <h2 className="text-xl font-semibold">{left.title}</h2>
+                    <p>{left.content}</p>
+
+                    <div className="text-sm text-gray-600">Votes: {leftVotes}</div>
+
+                    {!voted ? (
+                        <button
+                            onClick={() => vote(left._id)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                            Vote Left
+                        </button>
+                    ) : (
+                        <div className="font-semibold transition-opacity duration-300 opacity-100">
+                            Left: {leftPercent}%
+                        </div>
+
+                    )}
+                </div>
+
+                {/* RIGHT */}
+
+
+
+                <div
+                    className={`border p-4 rounded space-y-3 transition-transform duration-300
+  ${isRightWinner ? "border-yellow-400 shadow" : ""}
+  ${animatedSide === "right" ? "scale-105 animate-pulse" : ""}
+  `}
+                >
+
+                    {/* BADGE */}
+                    {voted && isRightWinner && (
+                    <span className="inline-block px-2 py-1 text-xs font-semibold bg-yellow-400 text-black rounded">
+                        Winner
+                    </span>
+                    )}
+                    {voted && isTie && (
+                    <span className="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-black rounded">
+                        Tie
+                    </span>
+                    )}
+
+
+
+
+
+
+                    <div className="text-sm text-gray-500">By {right.author?.name || "Unknown"}</div>
+                    <h2 className="text-xl font-semibold">{right.title}</h2>
+                    <p>{right.content}</p>
+
+                    <div className="text-sm text-gray-600">Votes: {rightVotes}</div>
+
+                    {!voted ? (
+                        <button
+                            onClick={() => vote(right._id)}
+                            className="bg-green-600 text-white px-4 py-2 rounded"
+                        >
+                            Vote Right
+                        </button>
+                    ) : (
+                        <div className="font-semibold transition-opacity duration-300 opacity-100">
+                            Right: {rightPercent}%
+                        </div>
+
+                    )}
+                </div>
+            </div>
+
+            <div className="flex gap-3">
+                <button
+                    onClick={loadBattle}
+                    className="bg-black text-white px-4 py-2 rounded"
+                >
+                    Next Battle
+                </button>
+
+                <button
+                    onClick={() => window.location.reload()}
+                    className="border px-4 py-2 rounded"
+                >
+                    Reload
+                </button>
+            </div>
         </div>
-
-        {/* RIGHT */}
-        <div className="border p-4 rounded space-y-3">
-          <div className="text-sm text-gray-500">By {right.author?.name || "Unknown"}</div>
-          <h2 className="text-xl font-semibold">{right.title}</h2>
-          <p>{right.content}</p>
-
-          <div className="text-sm text-gray-600">Votes: {rightVotes}</div>
-
-          {!voted ? (
-            <button
-              onClick={() => vote(right._id)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Vote Right
-            </button>
-          ) : (
-            <div className="font-semibold">Right: {rightPercent}%</div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          onClick={loadBattle}
-          className="bg-black text-white px-4 py-2 rounded"
-        >
-          Next Battle
-        </button>
-
-        <button
-          onClick={() => window.location.reload()}
-          className="border px-4 py-2 rounded"
-        >
-          Reload
-        </button>
-      </div>
-    </div>
-  );
+    );
 }
