@@ -12,6 +12,7 @@ export default function AppLayout() {
       <nav className="bg-black text-white p-4 flex gap-4">
         <Link to="/">Home</Link>
         <Link to="/login">Login</Link>
+        <Link to="/profile">Profile</Link>
 
         
         <div className="ml-auto flex gap-4">
