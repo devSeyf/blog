@@ -4,6 +4,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+
+import authRoutes from "./routes/authRoutes.js";
+
+
 dotenv.config();
 
 const app = express();
@@ -11,10 +15,13 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+
+
 
 // Health check
 app.get("/health", (req, res) => {
-  res.status(200).send("ok");
+  res.status(200).send("ok"); 
 });
 
 // Start server after DB connection
