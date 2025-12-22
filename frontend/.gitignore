@@ -1,5 +1,7 @@
-# files
+# Env
 .env
+.env.local
+.env.*.local
 
 # Logs
 logs
@@ -10,10 +12,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & build
 node_modules
 dist
 dist-ssr
 *.local
+
+# Coverage & cache  
+coverage
+.nyc_output
+.cache
+.parcel-cache
+.npm
+.eslintcache
 
 # Editor directories and files
 .vscode/*
