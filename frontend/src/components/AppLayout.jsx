@@ -11,12 +11,11 @@ export default function AppLayout() {
       {/* Navbar */}
       <nav className="bg-black text-white p-4 flex gap-4">
         <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
         <Link to="/profile">Profile</Link>
         <Link to="/posts">Posts</Link>
         <Link to="/posts/new">New Post</Link>
+        <Link to="/battle">Battle</Link>
 
-        
         <div className="ml-auto flex gap-4">
           {user ? (
             <button
@@ -26,13 +25,13 @@ export default function AppLayout() {
               Logout
             </button>
           ) : (
-            <Link to="/login">Login</Link>
+            <>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+            </>
           )}
         </div>
-
-
       </nav>
-
       {/* Page Content */}
       <main className="p-6">
         <Outlet />
