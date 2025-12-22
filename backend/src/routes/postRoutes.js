@@ -1,6 +1,7 @@
 import express from "express";
 import Post from "../models/Post.js";
 import { protect } from "../middleware/auth.js";
+import { upload } from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -22,27 +23,33 @@ const posts = await Post.find()
 
 /**
  * POST /api/posts
- * Protected: create post
+ * Protected: create post 
  */
-router.post("/", protect, async (req, res) => {
+router.post("/", protect, upload.single("image"), async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content, category } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({ message: "title and content are required" });
+    if (!title || !content || !category) {
+      return res.status(400).json({ message: "title, content, category are required" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "image is required" });
     }
 
     const post = await Post.create({
       title,
       content,
-      author: req.user._id, // comes from protect middleware
+      category,
+      author: req.user._id,
+      imageUrl: req.file.path,       // Cloudinary URL
+      imagePublicId: req.file.filename, // Cloudinary public_id
     });
 
     const populated = await Post.findById(post._id).populate("author", "name email");
-
     res.status(201).json({ post: populated });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message || "Server error" });
   }
 });
 

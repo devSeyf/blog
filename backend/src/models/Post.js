@@ -33,7 +33,24 @@ const postSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+
+      
     ],
+      category: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 50,
+      },
+      imageUrl: {
+        type: String,
+        required: true,
+      },
+      imagePublicId: {
+        type: String,
+        required: true,
+      },
+
   },
   { timestamps: true }
 );

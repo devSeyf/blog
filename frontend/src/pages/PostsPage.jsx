@@ -54,13 +54,33 @@ export default function PostsPage() {
 
       {posts.length === 0 && <div>No posts yet.</div>}
 
+
+
       {posts.map((post) => {
         const voted = hasVoted(post);
 
         return (
+
+
+          
           <div key={post._id} className="border p-4 rounded space-y-2">
+
+            {post.imageUrl && (
+  <img
+    src={post.imageUrl}
+    alt={post.title}
+    className="w-full max-h-64 object-cover rounded"
+  />
+)}
+
+{post.category && (
+  <div className="text-xs text-gray-600">
+    Category: <span className="font-semibold">{post.category}</span>
+  </div>
+)}
+
             <h2 className="text-xl font-semibold">{post.title}</h2>
-            <p>{post.content}</p>
+            <p className="line-clamp-3">{post.content}</p>
 
             <div className="text-sm text-gray-500">
               By {post.author?.name || "Unknown"} • Votes: {post.votesCount || 0}
