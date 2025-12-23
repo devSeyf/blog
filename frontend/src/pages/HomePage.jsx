@@ -48,53 +48,71 @@ export default function HomePage() {
   if (error) return <div className="text-red-600">Error: {error}</div>;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">All Posts</h1>
+    <div className="relative min-h-screen">
+      {/* Background */}
+      {/* Background removed - moved to AppLayout */}
 
-      {posts.length === 0 && <div>No posts yet.</div>}
+      {/* Content */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-start px-4 py-10">
+        <div className="w-full max-w-3xl space-y-6">
+          <h1 className="text-2xl font-bold text-white">All Posts</h1>
 
-      {posts.map((post) => {
-        const voted = hasVoted(post);
+          {posts.length === 0 && (
+            <div className="text-slate-200">No posts yet.</div>
+          )}
 
-        return (
-          <div key={post._id} className="border p-4 rounded space-y-2">
-            {post.imageUrl && (
-              <img
-                src={post.imageUrl}
-                alt={post.title}
-                className="w-full max-h-64 object-cover rounded"
-              />
-            )}
+          {posts.map((post) => {
+            const voted = hasVoted(post);
 
-            {post.category && (
-              <div className="text-xs text-gray-600">
-                Category: <span className="font-semibold">{post.category}</span>
-              </div>
-            )}
-
-            <h2 className="text-xl font-semibold">{post.title}</h2>
-            <p className="line-clamp-3">{post.content}</p>
-
-            <div className="text-sm text-gray-500">
-              By {post.author?.name || "Unknown"} • Votes: {post.votesCount || 0}
-            </div>
-
-            {!token ? (
-              <div className="text-sm text-gray-400">Login to vote</div>
-            ) : (
-              <button
-                onClick={() => handleVote(post._id)}
-                disabled={voted}
-                className={`px-3 py-1 rounded text-white ${
-                  voted ? "bg-gray-400" : "bg-blue-600"
-                }`}
+            return (
+              <div
+                key={post._id}
+                className="mb-4 space-y-2 rounded border border-slate-700 bg-slate-900/60 p-4 backdrop-blur"
               >
-                {voted ? "Voted" : "Vote"}
-              </button>
-            )}
-          </div>
-        );
-      })}
+                {post.imageUrl && (
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full max-h-64 rounded object-cover"
+                  />
+                )}
+
+                {post.category && (
+                  <div className="text-xs text-slate-400">
+                    Category:{" "}
+                    <span className="font-semibold text-slate-200">
+                      {post.category}
+                    </span>
+                  </div>
+                )}
+
+                <h2 className="text-xl font-semibold text-white">
+                  {post.title}
+                </h2>
+                <p className="text-slate-200 line-clamp-3">{post.content}</p>
+
+                <div className="text-sm text-slate-400">
+                  By {post.author?.name || "Unknown"} • Votes:{" "}
+                  {post.votesCount || 0}
+                </div>
+
+                {!token ? (
+                  <div className="text-sm text-slate-400">Login to vote</div>
+                ) : (
+                  <button
+                    onClick={() => handleVote(post._id)}
+                    disabled={voted}
+                    className={`px-3 py-1 rounded text-white ${voted ? "bg-gray-500" : "bg-sky-600 hover:bg-sky-500"
+                      }`}
+                  >
+                    {voted ? "Voted" : "Vote"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
