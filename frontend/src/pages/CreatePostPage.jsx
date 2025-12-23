@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { http } from "../api/http";
 
-import LoadingOverlay from "../components/LoadingOverlay";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import LoadingOverlay from "../shared/components/LoadingOverlay";
+import Input from "../shared/components/Input";
+import Button from "../shared/components/Button";
 
 const CATEGORIES = ["Tech", "Design", "Random", "News", "Hacking", "Crypto"];
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { http } from "../api/http";
-import LoadingOverlay from "../components/LoadingOverlay";
-import Button from "../components/Button";
+import LoadingOverlay from "../shared/components/LoadingOverlay";
+import Button from "../shared/components/Button";
 
 export default function BattlePage() {
     const [left, setLeft] = useState(null);

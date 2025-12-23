@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { http } from "../api/http";
 
-import LoadingOverlay from "../components/LoadingOverlay";
+import LoadingOverlay from "../shared/components/LoadingOverlay";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -13,7 +13,7 @@ export default function HomePage() {
   const user = useSelector((s) => s.auth.user);
   const token = useSelector((s) => s.auth.token);
 
-  // ✅ مهم: حتى نعمل refresh بعد إنشاء بوست
+ 
   const location = useLocation();
   const refreshKey = location.state?.refresh;
 
