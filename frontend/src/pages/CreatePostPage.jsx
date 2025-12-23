@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { http } from "../api/http"; // Ensure this instance supports FormData or let axios handle it
+import { http } from "../api/http";
+
 import LoadingOverlay from "../components/LoadingOverlay";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -9,10 +10,12 @@ const CATEGORIES = ["Tech", "Design", "Random", "News", "Hacking", "Crypto"];
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Tech");
   const [file, setFile] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -34,25 +37,24 @@ export default function CreatePostPage() {
       formData.append("title", title);
       formData.append("content", content);
       formData.append("category", category);
-      if (file) {
-        formData.append("image", file); // Must match backend 'upload.single("image")'
-      }
+      if (file) formData.append("image", file);
 
-      // Send to Backend
-      // Header Content-Type: multipart/form-data is usually set automatically by browser when Body is FormData
-      await http.post("/posts", formData);
+      const res = await http.post("/posts", formData);
 
       const elapsed = Date.now() - start;
       const delay = Math.max(0, 800 - elapsed);
 
       setTimeout(() => {
         setLoading(false);
-        navigate("/");
-      }, delay);
 
-    } catch (e) {
+        // ✅ رجّع للهوم مع refresh key حتى HomePage يعمل fetch من جديد
+        navigate("/", {
+          state: { refresh: Date.now(), createdPostId: res.data?.post?._id },
+        });
+      }, delay);
+    } catch (e2) {
       setLoading(false);
-      setError(e.response?.data?.message || e.message);
+      setError(e2.response?.data?.message || e2.message);
     }
   };
 
@@ -61,10 +63,13 @@ export default function CreatePostPage() {
       <LoadingOverlay visible={loading} />
 
       <div className="rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)]">
-
         <div className="mb-8 border-l-4 border-[#6BCA6E] pl-4">
-          <h1 className="text-3xl font-bold text-white uppercase tracking-wider">New Transmission</h1>
-          <p className="text-gray-400 text-sm mt-1">Initialize a new data packet for the network.</p>
+          <h1 className="text-3xl font-bold text-white uppercase tracking-wider">
+            New Transmission
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">
+            Initialize a new data packet for the network.
+          </p>
         </div>
 
         {error && (
@@ -73,7 +78,11 @@ export default function CreatePostPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="space-y-6"
+        >
           <Input
             label="Title / Subject"
             id="title"
@@ -84,7 +93,10 @@ export default function CreatePostPage() {
           />
 
           <div className="w-full">
-            <label htmlFor="category" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+            <label
+              htmlFor="category"
+              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
+            >
               Category
             </label>
             <select
@@ -93,28 +105,36 @@ export default function CreatePostPage() {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full bg-[#0A0A0A] border border-gray-800 text-white px-4 py-3 rounded focus:outline-none focus:border-[#6BCA6E] focus:ring-1 focus:ring-[#6BCA6E] transition-all"
             >
-              {CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="w-full">
-            <label htmlFor="file" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+            <label
+              htmlFor="file"
+              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
+            >
               Attachment (Image) <span className="text-[#6BCA6E]">*</span>
             </label>
             <input
               type="file"
               id="file"
               accept="image/*"
-              required // Backend says image is required
+              required
               onChange={handleFileChange}
               className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#6BCA6E] file:text-black hover:file:bg-[#5abc5d] cursor-pointer"
             />
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="content" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+            <label
+              htmlFor="content"
+              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
+            >
               Message Content <span className="text-[#6BCA6E]">*</span>
             </label>
             <textarea

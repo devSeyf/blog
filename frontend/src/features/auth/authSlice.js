@@ -9,12 +9,7 @@ const loadAuthFromStorage = () => {
     return {
       user: user ? JSON.parse(user) : null,
       token: token || null,
-    };
-  } catch (e) {
-    return { user: null, token: null };
-  }
-};
-
+    }; } catch (e) {return { user: null, token: null };}};
 
 const authData = loadAuthFromStorage();
 const initialState = {

@@ -43,17 +43,17 @@ router.post("/", protect, (req, res, next) => {
       return res.status(400).json({ message: "title, content, category are required" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "image is required" });
-    }
+   //  if (!req.file) {
+   //    return res.status(400).json({ message: "image is required" });
+   //  }
 
     const post = await Post.create({
       title,
       content,
       category,
       author: req.user._id,
-      imageUrl: req.file.path,       // Cloudinary URL
-      imagePublicId: req.file.filename, // Cloudinary public_id
+      imageUrl: req.file?.path || null,      // Cloudinary URL
+      imagePublicId: req.file?.filename || null, // Cloudinary public_id
     });
 
     const populated = await Post.findById(post._id).populate("author", "name email");
