@@ -57,7 +57,7 @@ export default function AppLayout() {
       {/* NAVBAR */}
       <Disclosure
         as="nav"
-        className="relative z-50 border-b border-white/10 bg-black/80 backdrop-blur-md"
+        className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md"
       >
         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
@@ -217,7 +217,7 @@ export default function AppLayout() {
       </Disclosure>
 
       {/* PAGE CONTENT */}
-      <main className="relative z-10 flex-grow p-6">
+      <main className="relative z-10 grow p-6">
         <Outlet />
       </main>
 
@@ -225,25 +225,16 @@ export default function AppLayout() {
       <footer className="relative z-10 border-t border-white/10 bg-black py-8">
         <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-sm">D</div>
-            <span className="text-xl font-bold tracking-wider text-white">DAIF</span>
+            <div className="h-8 w-8 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-sm">B</div>
+            <span className="text-xl font-bold tracking-wider text-white">Blog Battle</span>
           </div>
 
           <div className="text-gray-500 text-sm">
-            &copy; 2025 DAIF. All rights reserved.
+            &copy; 2025 Blog Battle. All rights reserved.
           </div>
 
           <div className="flex gap-4">
-            {/* Social Placeholders */}
-            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
-              GitHub
-            </a>
-            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
-              Twitter
-            </a>
-            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
-              LinkedIn
-            </a>
+            {/* Social Links Removed */}
           </div>
         </div>
       </footer>

@@ -85,7 +85,7 @@ export default function HomePage() {
       <div className={`w-full max-w-3xl flex-col items-center py-10 px-4 transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
 
         <h2 className="mb-6 w-full text-left text-2xl font-bold text-white border-l-4 border-[#6BCA6E] pl-4">
-          Incoming Transmissions
+          Messages are docking...
         </h2>
 
         {posts.length === 0 && (
@@ -101,10 +101,10 @@ export default function HomePage() {
             return (
               <div
                 key={post._id}
-                className="group relative overflow-hidden rounded-lg bg-[#0a0a0a] border border-gray-800 p-6 transition-all duration-300 hover:border-[#6BCA6E] hover:shadow-[0_0_15px_rgba(107,202,110,0.1)]"
+                className="group relative overflow-hidden rounded-xl bg-[#0a0a0a] border border-gray-800 p-6 transition-all duration-300 hover:border-[#6BCA6E]/50 hover:shadow-[0_10px_30px_rgba(107,202,110,0.1)] hover:-translate-y-1"
               >
-                {/* Decorative corner accent */}
-                <div className="absolute top-0 right-0 h-0 w-0 border-t-[20px] border-r-[20px] border-t-transparent border-r-[#6BCA6E]/0 transition-all duration-300 group-hover:border-r-[#6BCA6E]" />
+                {/* Decorative corner accent - simplified */}
+                <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-bl from-[#6BCA6E]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 {post.imageUrl && (
                   <div className="mb-4 overflow-hidden rounded border border-gray-800">

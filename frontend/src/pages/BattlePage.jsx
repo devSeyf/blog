@@ -7,11 +7,7 @@ export default function BattlePage() {
     const [loading, setLoading] = useState(true);
     const [voted, setVoted] = useState(false);
     const [error, setError] = useState(null);
-
-
     const [animatedSide, setAnimatedSide] = useState(null);
-
-
 
     async function loadBattle() {
         setLoading(true);
@@ -19,7 +15,6 @@ export default function BattlePage() {
         setVoted(false);
         setAnimatedSide(null);
         try {
-
             const res = await http.get("/posts");
             const all = res.data.posts || [];
 
@@ -50,15 +45,9 @@ export default function BattlePage() {
     const leftVotes = left?.votesCount ?? 0;
     const rightVotes = right?.votesCount ?? 0;
 
-
     const isLeftWinner = leftVotes > rightVotes;
     const isRightWinner = rightVotes > leftVotes;
     const isTie = leftVotes === rightVotes;
-
-
-
-
-
 
     const { leftPercent, rightPercent } = useMemo(() => {
         const total = leftVotes + rightVotes;
@@ -83,14 +72,10 @@ export default function BattlePage() {
             // after 0.5 remove
             setTimeout(() => setAnimatedSide(null), 500);
 
-
-
         } catch (e) {
             const msg = e.response?.data?.message || e.message;
 
-
             if (msg.toLowerCase().includes("already voted")) {
-
                 const postsRes = await http.get("/posts");
                 const all = postsRes.data.posts || [];
 
@@ -103,127 +88,170 @@ export default function BattlePage() {
                 setVoted(true);
                 return;
             }
-
             setError(msg);
         }
     }
 
-    if (loading) return <div>Loading battle...</div>;
-    if (error) return <div className="text-red-600">Error: {error}</div>;
+    if (loading) return <div className="text-[#6BCA6E] animate-pulse flex justify-center py-20">ESTABLISHING CONNECTION...</div>;
+    if (error) return <div className="text-red-500 border border-red-500/50 p-4 rounded bg-red-900/10 text-center">SYSTEM ERROR: {error}</div>;
     if (!left || !right) return null;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6">
-            <h1 className="text-3xl font-bold">Blog Battle</h1>
-            <p className="text-gray-600">
-                Vote for the better post. After voting, you’ll see the % result.
-            </p>
+        <div className="max-w-6xl mx-auto space-y-8 py-10 px-4">
+            <div className="text-center space-y-2">
+                <h1 className="text-4xl font-bold text-white tracking-widest uppercase">
+                    Blog Battle
+                    <span className="text-[#6BCA6E]">.exe</span>
+                </h1>
+                <p className="text-gray-400 font-mono text-sm max-w-lg mx-auto">
+                    Compare two data streams. Execute your choice. Analyze consensus.
+                </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* LEFT */}
-                <div
-                    className={`border p-4 rounded space-y-3 transition-transform duration-300
-  ${isLeftWinner ? "border-yellow-400 shadow" : ""}
-  ${animatedSide === "left" ? "scale-105 animate-pulse" : ""}
-  `}
-                >
-                    {/* BADGE */}
-                {voted && isLeftWinner && (
-                <span className="inline-block px-2 py-1 text-xs font-semibold bg-yellow-400 text-black rounded">
-                    Winner
-                </span>
-                )}
-                {voted && isTie && (
-                <span className="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-black rounded">
-                    Tie
-                </span>
-                )}
-
-
-                    <div className="text-sm text-gray-500">By {left.author?.name || "Unknown"}</div>
-                    <h2 className="text-xl font-semibold">{left.title}</h2>
-                    <p>{left.content}</p>
-
-                    <div className="text-sm text-gray-600">Votes: {leftVotes}</div>
-
-                    {!voted ? (
-                        <button
-                            onClick={() => vote(left._id)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded"
-                        >
-                            Vote Left
-                        </button>
-                    ) : (
-                        <div className="font-semibold transition-opacity duration-300 opacity-100">
-                            Left: {leftPercent}%
-                        </div>
-
-                    )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+                {/* VS Badge */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden lg:flex h-12 w-12 items-center justify-center rounded-full bg-black border-2 border-[#6BCA6E] text-[#6BCA6E] font-bold shadow-[0_0_20px_rgba(107,202,110,0.5)]">
+                    VS
                 </div>
 
-                {/* RIGHT */}
-
-
-
+                {/* LEFT CARD */}
                 <div
-                    className={`border p-4 rounded space-y-3 transition-transform duration-300
-  ${isRightWinner ? "border-yellow-400 shadow" : ""}
-  ${animatedSide === "right" ? "scale-105 animate-pulse" : ""}
-  `}
+                    className={`relative flex flex-col justify-between rounded-lg border bg-[#0a0a0a] p-6 transition-all duration-500 hover:shadow-[0_0_30px_rgba(107,202,110,0.1)]
+                    ${voted && isLeftWinner ? "border-[#6BCA6E] shadow-[0_0_20px_rgba(107,202,110,0.3)] ring-1 ring-[#6BCA6E]" : "border-gray-800 hover:border-gray-700"}
+                    ${animatedSide === "left" ? "scale-[1.02] shadow-[0_0_40px_rgba(107,202,110,0.6)]" : ""}
+                    `}
                 >
-
-                    {/* BADGE */}
-                    {voted && isRightWinner && (
-                    <span className="inline-block px-2 py-1 text-xs font-semibold bg-yellow-400 text-black rounded">
-                        Winner
-                    </span>
-                    )}
-                    {voted && isTie && (
-                    <span className="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-black rounded">
-                        Tie
-                    </span>
+                    {/* Victory Particle Effect (Simple CSS) */}
+                    {voted && isLeftWinner && (
+                        <div className="absolute inset-0 z-0 overflow-hidden rounded-lg pointer-events-none">
+                            <div className="absolute top-0 left-1/2 h-full w-[200%] -translate-x-1/2 bg-[radial-gradient(circle,rgba(107,202,110,0.1)_0%,transparent_70%)] animate-pulse" />
+                        </div>
                     )}
 
-
-
-
-
-
-                    <div className="text-sm text-gray-500">By {right.author?.name || "Unknown"}</div>
-                    <h2 className="text-xl font-semibold">{right.title}</h2>
-                    <p>{right.content}</p>
-
-                    <div className="text-sm text-gray-600">Votes: {rightVotes}</div>
-
-                    {!voted ? (
-                        <button
-                            onClick={() => vote(right._id)}
-                            className="bg-green-600 text-white px-4 py-2 rounded"
-                        >
-                            Vote Right
-                        </button>
-                    ) : (
-                        <div className="font-semibold transition-opacity duration-300 opacity-100">
-                            Right: {rightPercent}%
+                    <div className="relative z-10 space-y-4">
+                        <div className="flex justify-between items-start">
+                            <span className="font-mono text-xs text-gray-500">ID_LEFT::X01</span>
+                            {voted && isLeftWinner && (
+                                <span className="inline-block px-2 py-0.5 text-xs font-bold bg-[#6BCA6E] text-black rounded animate-pulse">
+                                    VICTORY
+                                </span>
+                            )}
                         </div>
 
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-1 group-hover:text-[#6BCA6E] transition-colors">{left.title}</h2>
+                            <div className="text-xs text-gray-500 font-mono">
+                                AUTHOR: {left.author?.name || "UNKNOWN_ENTITY"}
+                            </div>
+                        </div>
+
+                        <p className="text-gray-300 leading-relaxed min-h-[100px] border-l-2 border-gray-800 pl-4 py-2">
+                            {left.content}
+                        </p>
+                    </div>
+
+                    <div className="relative z-10 mt-6 pt-6 border-t border-gray-800">
+                        {!voted ? (
+                            <button
+                                onClick={() => vote(left._id)}
+                                className="w-full rounded border border-[#6BCA6E] py-3 text-sm font-bold uppercase tracking-widest text-[#6BCA6E] transition-all hover:bg-[#6BCA6E] hover:text-black hover:shadow-[0_0_15px_rgba(107,202,110,0.4)]"
+                            >
+                                Execute Vote_A
+                            </button>
+                        ) : (
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className={isLeftWinner ? "text-[#6BCA6E]" : "text-gray-500"}>CONSENSUS</span>
+                                    <span className={isLeftWinner ? "text-[#6BCA6E]" : "text-white"}>{leftPercent}%</span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-800">
+                                    <div
+                                        className={`h-full transition-all duration-1000 ease-out ${isLeftWinner ? "bg-[#6BCA6E]" : "bg-gray-600"}`}
+                                        style={{ width: `${leftPercent}%` }}
+                                    />
+                                </div>
+                                <div className="text-right text-xs text-gray-500 font-mono">RAW_COUNT: {leftVotes}</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* RIGHT CARD */}
+                <div
+                    className={`relative flex flex-col justify-between rounded-lg border bg-[#0a0a0a] p-6 transition-all duration-500 hover:shadow-[0_0_30px_rgba(107,202,110,0.1)]
+                    ${voted && isRightWinner ? "border-[#6BCA6E] shadow-[0_0_20px_rgba(107,202,110,0.3)] ring-1 ring-[#6BCA6E]" : "border-gray-800 hover:border-gray-700"}
+                    ${animatedSide === "right" ? "scale-[1.02] shadow-[0_0_40px_rgba(107,202,110,0.6)]" : ""}
+                    `}
+                >
+                    {/* Victory Effect */}
+                    {voted && isRightWinner && (
+                        <div className="absolute inset-0 z-0 overflow-hidden rounded-lg pointer-events-none">
+                            <div className="absolute top-0 left-1/2 h-full w-[200%] -translate-x-1/2 bg-[radial-gradient(circle,rgba(107,202,110,0.1)_0%,transparent_70%)] animate-pulse" />
+                        </div>
                     )}
+
+                    <div className="relative z-10 space-y-4">
+                        <div className="flex justify-between items-start">
+                            <span className="font-mono text-xs text-gray-500">ID_RIGHT::X02</span>
+                            {voted && isRightWinner && (
+                                <span className="inline-block px-2 py-0.5 text-xs font-bold bg-[#6BCA6E] text-black rounded animate-pulse">
+                                    VICTORY
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-1 group-hover:text-[#6BCA6E] transition-colors">{right.title}</h2>
+                            <div className="text-xs text-gray-500 font-mono">
+                                AUTHOR: {right.author?.name || "UNKNOWN_ENTITY"}
+                            </div>
+                        </div>
+
+                        <p className="text-gray-300 leading-relaxed min-h-[100px] border-l-2 border-gray-800 pl-4 py-2">
+                            {right.content}
+                        </p>
+                    </div>
+
+                    <div className="relative z-10 mt-6 pt-6 border-t border-gray-800">
+                        {!voted ? (
+                            <button
+                                onClick={() => vote(right._id)}
+                                className="w-full rounded border border-[#6BCA6E] py-3 text-sm font-bold uppercase tracking-widest text-[#6BCA6E] transition-all hover:bg-[#6BCA6E] hover:text-black hover:shadow-[0_0_15px_rgba(107,202,110,0.4)]"
+                            >
+                                Execute Vote_B
+                            </button>
+                        ) : (
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className={isRightWinner ? "text-[#6BCA6E]" : "text-gray-500"}>CONSENSUS</span>
+                                    <span className={isRightWinner ? "text-[#6BCA6E]" : "text-white"}>{rightPercent}%</span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-800">
+                                    <div
+                                        className={`h-full transition-all duration-1000 ease-out ${isRightWinner ? "bg-[#6BCA6E]" : "bg-gray-600"}`}
+                                        style={{ width: `${rightPercent}%` }}
+                                    />
+                                </div>
+                                <div className="text-right text-xs text-gray-500 font-mono">RAW_COUNT: {rightVotes}</div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex justify-center gap-4 pt-8">
                 <button
                     onClick={loadBattle}
-                    className="bg-black text-white px-4 py-2 rounded"
+                    className="rounded bg-[#6BCA6E] px-8 py-3 text-sm font-bold uppercase text-black shadow-lg transition-transform hover:scale-105 hover:bg-[#5abc5d]"
                 >
-                    Next Battle
+                    Next_Battle (Process)
                 </button>
 
                 <button
                     onClick={() => window.location.reload()}
-                    className="border px-4 py-2 rounded"
+                    className="rounded border border-gray-700 px-6 py-3 text-sm font-bold uppercase text-gray-400 hover:border-gray-500 hover:text-white transition-colors"
                 >
-                    Reload
+                    Reload_System
                 </button>
             </div>
         </div>
