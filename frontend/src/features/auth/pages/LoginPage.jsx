@@ -16,37 +16,33 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
 
-        // Minimum load time for effect
-        const start = Date.now();
+  let timerId = null;
 
-        try {
-            // Dispatch the login Thunk directly
-            // This handles the API call and Redux state update internally
-            const resultAction = await dispatch(login({ email, password }));
+  try {
+     
+    timerId = setTimeout(() => {
+      setLoading(true);
+    }, 250);
 
-            const elapsed = Date.now() - start;
-            const delay = Math.max(0, 800 - elapsed);
+    const resultAction = await dispatch(login({ email, password }));
 
-            setTimeout(() => {
-                if (login.fulfilled.match(resultAction)) {
-                    navigate("/");
-                } else {
-                    // If the thunk rejected, the payload contains the error message
-                    setError(resultAction.payload || "Authentication failed");
-                }
-                setLoading(false);
-            }, delay);
+    if (login.fulfilled.match(resultAction)) {
+      navigate("/");
+    } else {
+      setError(resultAction.payload || "Authentication failed");
+    }
+  } catch (err) {
+    setError("An unexpected error occurred");
+  } finally {
+    if (timerId) clearTimeout(timerId);
+    setLoading(false);
+  }
+};
 
-        } catch (err) {
-            setLoading(false);
-            setError("An unexpected error occurred");
-        }
-    };
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center p-4">

@@ -17,33 +17,34 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
 
-    const start = Date.now();
+  let timerId;
 
-    try {
-      const resultAction = await dispatch(register({ name, email, password }));
+  try {
+     
+    timerId = setTimeout(() => {
+      setLoading(true);
+    }, 250);
 
-      const elapsed = Date.now() - start;
-      const delay = Math.max(0, 800 - elapsed);
+    const resultAction = await dispatch(
+      register({ name, email, password })
+    );
 
-      setTimeout(() => {
-        if (register.fulfilled.match(resultAction)) {
-          navigate("/");
-        } else {
-          setError(resultAction.payload || "Registration failed");
-        }
-        setLoading(false);
-      }, delay);
-
-    } catch (err) {
-      setLoading(false);
-      setError("An unexpected error occurred");
+    if (register.fulfilled.match(resultAction)) {
+      navigate("/");
+    } else {
+      setError(resultAction.payload || "Registration failed");
     }
-  };
+  } catch (err) {
+    setError("An unexpected error occurred");
+  } finally {
+    clearTimeout(timerId);
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
