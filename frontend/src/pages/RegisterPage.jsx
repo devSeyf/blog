@@ -1,84 +1,118 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { register } from "../features/auth/authSlice";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../features/auth/authSlice"; // Auto-login often uses same action
+import { http } from "../api/http";
+import LoadingOverlay from "../components/LoadingOverlay";
+import Input from "../components/Input";
+import Button from "../components/Button";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const { status, error, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(register({ name, email, password }));
+    setLoading(true);
+    setError(null);
+
+    const start = Date.now();
+
+    try {
+      const res = await http.post("/auth/register", { name, email, password });
+
+      const elapsed = Date.now() - start;
+      const delay = Math.max(0, 800 - elapsed);
+
+      setTimeout(() => {
+        // Auto login on register success if API returns token, else redirect to login
+        if (res.data.token) {
+          dispatch(login({ user: res.data.user, token: res.data.token }));
+          navigate("/");
+        } else {
+          navigate("/login");
+        }
+        setLoading(false);
+      }, delay);
+
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.message || err.message);
+    }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            className="mt-1 w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+    <div className="flex min-h-[80vh] items-center justify-center p-4">
+      <LoadingOverlay visible={loading} />
+
+      <div className="w-full max-w-md space-y-8 rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)] backdrop-blur-sm">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#6BCA6E] bg-black text-[#6BCA6E] shadow-[0_0_15px_rgba(107,202,110,0.5)]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.007v.008h-.007V16.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-white">NEW_USER_PROTOCOL</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Establish a new secure identity.
+          </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            placeholder="Enter email"
-            className="mt-1 w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        {error && (
+          <div className="rounded border border-red-500/50 bg-red-900/10 p-4 text-sm text-red-500">
+            ERROR: {error}
+          </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            placeholder="Enter password"
-            className="mt-1 w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <Input
+              label="Identity Name"
+              id="name"
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name"
+            />
+            <Input
+              label="Email Address"
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@example.com"
+            />
+            <Input
+              label="Set Password"
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+          <Button type="submit" className="w-full">
+            Establish Identity
+          </Button>
+        </form>
 
-        <button
-          type="submit"
-          className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 disabled:opacity-50"
-          disabled={status === "loading"}
-        >
-          {status === "loading" ? "Registering..." : "Register"}
-        </button>
-      </form>
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Already have an account?{" "}
-        <a href="/login" className="text-blue-600 hover:underline">
-          Login
-        </a>
-      </p>
+        <p className="text-center text-sm text-gray-500">
+          Already verified?{" "}
+          <Link to="/login" className="font-semibold text-[#6BCA6E] hover:underline">
+            Access Terminal
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

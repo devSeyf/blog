@@ -1,124 +1,111 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { http } from "../api/http";
+import LoadingOverlay from "../components/LoadingOverlay";
+import Input from "../components/Input";
+import Button from "../components/Button";
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
-  const token = useSelector((s) => s.auth.token);
-
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState("General");
-  const [image, setImage] = useState(null);
-
+  const [content, setContent] = useState(""); // We assume text content for now
+  const [category, setCategory] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  if (!token) {
-    return <div className="p-6 text-red-600">You must be logged in.</div>;
-  }
-
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    if (!image) {
-      setError("Please choose an image.");
-      return;
-    }
+    const start = Date.now();
 
     try {
-      setLoading(true);
-      setError(null);
+      await http.post("/posts", { title, content, category, imageUrl });
 
-      const form = new FormData();
-      form.append("title", title);
-      form.append("content", content);
-      form.append("category", category);
-      form.append("image", image);
+      const elapsed = Date.now() - start;
+      const delay = Math.max(0, 800 - elapsed);
 
-      await http.post("/posts", form);
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/");
+      }, delay);
 
-
-      navigate("/posts");
     } catch (e) {
-      setError(e.response?.data?.message || e.message);
-    } finally {
       setLoading(false);
+      setError(e.response?.data?.message || e.message);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Create Post</h1>
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      <LoadingOverlay visible={loading} />
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <div>
-          <label className="block mb-1">Title</label>
-          <input className="border p-2 rounded w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <div className="rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)]">
+
+        <div className="mb-8 border-l-4 border-[#6BCA6E] pl-4">
+          <h1 className="text-3xl font-bold text-white uppercase tracking-wider">New Transmission</h1>
+          <p className="text-gray-400 text-sm mt-1">Initialize a new data packet for the network.</p>
         </div>
 
-        <div>
-          <label className="block mb-1">Category</label>
-          <select className="border p-2 rounded w-full" value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option>General</option>
-            <option>Tech</option>
-            <option>Life</option>
-            <option>Sports</option>
-             <option>Business</option>
-             <option>Health</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">Image</label>
-          <div className="flex flex-col items-start gap-3">
-            <label className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>Select Image</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-              />
-            </label>
-
-            {image && (
-              <div className="relative mt-2">
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt="Preview"
-                  className="h-48 w-full object-cover rounded-lg border border-gray-300 shadow-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => setImage(null)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  title="Remove image"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            )}
+        {error && (
+          <div className="mb-6 rounded border border-red-500/50 bg-red-900/10 p-4 text-sm text-red-500">
+            ERROR: {error}
           </div>
-        </div>
+        )}
 
-        <div>
-          <label className="block mb-1">Content</label>
-          <textarea className="border p-2 rounded w-full" rows={6} value={content} onChange={(e) => setContent(e.target.value)} />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
+            label="Title / Subject"
+            id="title"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter transmission subject..."
+          />
 
-        {error && <div className="text-red-600">Error: {error}</div>}
+          <Input
+            label="Category (Optional)"
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="e.g. TECH, INTEL, MEME"
+          />
 
-        <button className="bg-black text-white px-4 py-2 rounded" disabled={loading}>
-          {loading ? "Creating..." : "Create"}
-        </button>
-      </form>
+          <Input
+            label="Image Frequency URL (Optional)"
+            id="image"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://..."
+          />
+
+          <div className="space-y-1">
+            <label htmlFor="content" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+              Message Content <span className="text-[#6BCA6E]">*</span>
+            </label>
+            <textarea
+              id="content"
+              required
+              rows={6}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full bg-[#0A0A0A] border border-gray-800 text-white px-4 py-3 rounded focus:outline-none focus:border-[#6BCA6E] focus:ring-1 focus:ring-[#6BCA6E] transition-all placeholder-gray-600 resize-y"
+              placeholder="Enter encrypted message here..."
+            />
+          </div>
+
+          <div className="pt-4 flex gap-4">
+            <Button type="submit" className="flex-1">
+              Broadcast Message
+            </Button>
+            <Button type="button" variant="outline" onClick={() => navigate("/")}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
