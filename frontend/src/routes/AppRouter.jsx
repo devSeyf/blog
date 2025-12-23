@@ -7,6 +7,8 @@ import NotFoundPage from "../features/common/pages/NotFoundPage";
 import ProfilePage from "../features/profile/pages/ProfilePage";
 import CreatePostPage from "../features/posts/pages/CreatePostPage";
 import BattlePage from "../features/battle/pages/BattlePage";
+import EditPostPage from "../features/posts/pages/EditPostPage";
+
 
 export default function AppRouter() {
   return (
@@ -20,6 +22,7 @@ export default function AppRouter() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/posts/new" element={<CreatePostPage />} />
           <Route path="/battle" element={<BattlePage />} />
+        <Route path="/posts/:id/edit" element={<EditPostPage />} />
 
         </Route>
       </Routes>
