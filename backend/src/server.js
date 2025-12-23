@@ -30,6 +30,14 @@ app.get("/api/me", protect, (req, res) => {
 
 
 
+
+// Start serve PURE
+app.get("/", (req, res) => {
+  res.send("API is running ....");
+});
+
+
+
 // Start server after DB connection
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -48,7 +56,7 @@ async function start() {
       console.log(`✅ Server running on http://localhost:${PORT}`);
     });
   } catch (err) {
-    console.error("❌ MongoDB connection error:", err.message);
+    console.error(" MongoDB connection error:", err.message);
     process.exit(1);
   }
 }

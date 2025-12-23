@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { http } from "../../api/http";
 
-// --- HELPER FUNCTIONS ---
+// --- Function to read login data from localStorage ---
 const loadAuthFromStorage = () => {
   try {
     const user = localStorage.getItem("user");
@@ -15,8 +15,8 @@ const loadAuthFromStorage = () => {
   }
 };
 
-const authData = loadAuthFromStorage();
 
+const authData = loadAuthFromStorage();
 const initialState = {
   user: authData.user,
   token: authData.token,
@@ -24,6 +24,8 @@ const initialState = {
   error: null,
 };
 
+
+//  --- (New registration request) ---
 export const register = createAsyncThunk(
   "auth/register",
   async ({ name, email, password }, thunkAPI) => {
@@ -37,6 +39,7 @@ export const register = createAsyncThunk(
     }
   }
 );
+
 
 export const login = createAsyncThunk(
   "auth/login",
@@ -77,7 +80,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        console.log("LOGIN PAYLOAD:", action.payload);
+         
 
         state.status = "succeeded";
         state.user = action.payload.user;
@@ -97,7 +100,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
-        console.log("REGISTER PAYLOAD:", action.payload);
+        
 
         state.status = "succeeded";
         state.user = action.payload.user;
