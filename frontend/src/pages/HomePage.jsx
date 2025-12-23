@@ -2,6 +2,24 @@ import { useEffect, useState } from "react";
 import { http } from "../api/http";
 import { useSelector } from "react-redux";
 
+// --- Components ---
+
+function LoadingOverlay({ visible }) {
+  if (!visible) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black transition-opacity duration-500">
+      <div className="relative flex flex-col items-center gap-4">
+        {/* Simple Green Spinner */}
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#6BCA6E]/30 border-t-[#6BCA6E]"></div>
+        <div className="animate-pulse text-[#6BCA6E] font-mono text-sm tracking-widest">
+          Just a moment, almost there...
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,13 +30,18 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      // Simulate slight delay for the loading effect to be visible
+      const start = Date.now();
       try {
         const res = await http.get("/posts");
         setPosts(res.data.posts);
       } catch (e) {
         setError(e.response?.data?.message || e.message);
       } finally {
-        setLoading(false);
+        // Ensure at least 800ms loading for the effect
+        const elapsed = Date.now() - start;
+        const delay = Math.max(0, 800 - elapsed);
+        setTimeout(() => setLoading(false), delay);
       }
     };
 
@@ -44,70 +67,94 @@ export default function HomePage() {
     }
   };
 
-  if (loading) return <div>Loading posts...</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
+  if (error) return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="rounded border border-red-500/50 bg-red-900/10 p-6 text-red-500">
+        <h2 className="mb-2 text-xl font-bold">SYSTEM ERROR</h2>
+        <p>{error}</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background */}
-      {/* Background removed - moved to AppLayout */}
+    <div className="relative flex flex-col items-center min-h-[calc(100vh-64px)] w-full">
+      {/* Loading Overlay */}
+      {loading && <LoadingOverlay visible={loading} />}
 
-      {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-start px-4 py-10">
-        <div className="w-full max-w-3xl space-y-6">
-          <h1 className="text-2xl font-bold text-white">All Posts</h1>
+      {/* Main Content (fades in slightly) */}
+      <div className={`w-full max-w-3xl flex-col items-center py-10 px-4 transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
 
-          {posts.length === 0 && (
-            <div className="text-slate-200">No posts yet.</div>
-          )}
+        <h2 className="mb-6 w-full text-left text-2xl font-bold text-white border-l-4 border-[#6BCA6E] pl-4">
+          Incoming Transmissions
+        </h2>
 
+        {posts.length === 0 && (
+          <div className="w-full rounded border border-dashed border-gray-700 p-8 text-center text-gray-500">
+            No signal detected.
+          </div>
+        )}
+
+        <div className="w-full space-y-6">
           {posts.map((post) => {
             const voted = hasVoted(post);
 
             return (
               <div
                 key={post._id}
-                className="mb-4 space-y-2 rounded border border-slate-700 bg-slate-900/60 p-4 backdrop-blur"
+                className="group relative overflow-hidden rounded-lg bg-[#0a0a0a] border border-gray-800 p-6 transition-all duration-300 hover:border-[#6BCA6E] hover:shadow-[0_0_15px_rgba(107,202,110,0.1)]"
               >
-                {post.imageUrl && (
-                  <img
-                    src={post.imageUrl}
-                    alt={post.title}
-                    className="w-full max-h-64 rounded object-cover"
-                  />
-                )}
+                {/* Decorative corner accent */}
+                <div className="absolute top-0 right-0 h-0 w-0 border-t-[20px] border-r-[20px] border-t-transparent border-r-[#6BCA6E]/0 transition-all duration-300 group-hover:border-r-[#6BCA6E]" />
 
-                {post.category && (
-                  <div className="text-xs text-slate-400">
-                    Category:{" "}
-                    <span className="font-semibold text-slate-200">
-                      {post.category}
-                    </span>
+                {post.imageUrl && (
+                  <div className="mb-4 overflow-hidden rounded border border-gray-800">
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="h-48 w-full object-cover opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                    />
                   </div>
                 )}
 
-                <h2 className="text-xl font-semibold text-white">
-                  {post.title}
-                </h2>
-                <p className="text-slate-200 line-clamp-3">{post.content}</p>
-
-                <div className="text-sm text-slate-400">
-                  By {post.author?.name || "Unknown"} • Votes:{" "}
-                  {post.votesCount || 0}
+                <div className="mb-2 flex items-center justify-between">
+                  {post.category && (
+                    <span className="rounded bg-[#6BCA6E]/10 px-2 py-0.5 text-xs font-medium text-[#6BCA6E] border border-[#6BCA6E]/20">
+                      {post.category}
+                    </span>
+                  )}
+                  <span className="font-mono text-xs text-gray-500">
+                    ID: {post._id.slice(-6).toUpperCase()}
+                  </span>
                 </div>
 
-                {!token ? (
-                  <div className="text-sm text-slate-400">Login to vote</div>
-                ) : (
-                  <button
-                    onClick={() => handleVote(post._id)}
-                    disabled={voted}
-                    className={`px-3 py-1 rounded text-white ${voted ? "bg-gray-500" : "bg-sky-600 hover:bg-sky-500"
-                      }`}
-                  >
-                    {voted ? "Voted" : "Vote"}
-                  </button>
-                )}
+                <h3 className="mb-2 text-xl font-bold text-white group-hover:text-[#6BCA6E] transition-colors">
+                  {post.title}
+                </h3>
+                <p className="mb-4 text-gray-400 line-clamp-3">
+                  {post.content}
+                </p>
+
+                <div className="flex items-center justify-between border-t border-gray-800 pt-4 mt-4">
+                  <div className="flex flex-col text-xs text-gray-500">
+                    <span>OP: <span className="text-gray-300">{post.author?.name || "Unknown"}</span></span>
+                    <span>Votes: <span className="text-[#6BCA6E]">{post.votesCount || 0}</span></span>
+                  </div>
+
+                  {!token ? (
+                    <span className="text-xs text-gray-600 italic">Login to decrypt</span>
+                  ) : (
+                    <button
+                      onClick={() => handleVote(post._id)}
+                      disabled={voted}
+                      className={`relative overflow-hidden rounded px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${voted
+                        ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                        : "bg-[#6BCA6E] text-black hover:bg-[#5abc5d] hover:shadow-[0_0_10px_rgba(107,202,110,0.4)]"
+                        }`}
+                    >
+                      {voted ? "Locked" : "Execute Vote"}
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

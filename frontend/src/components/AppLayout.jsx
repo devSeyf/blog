@@ -7,8 +7,9 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
+import { useEffect } from "react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 
@@ -24,24 +25,45 @@ function classNames(...classes) {
 export default function AppLayout() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    navigate("/");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const daifAscii = `
+%c
+██████╗  █████╗ ██╗███████╗
+██╔══██╗██╔══██╗██║██╔════╝
+██║  ██║███████║██║█████╗  
+██║  ██║██╔══██║██║██╔══╝  
+██████╔╝██║  ██║██║██║     
+╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     
+    `;
+    console.log(daifAscii, "color: #6BCA6E; font-weight: bold; font-family: monospace;");
+    console.log("%c> SYSTEM READY. WELCOME TO DAIF'S TERMINAL.", "color: #6BCA6E; font-family: monospace;");
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Background */}
-      <div className="fixed inset-0">
-        <div className="absolute inset-0 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-size-[20px_20px]" />
+    <div className="flex min-h-screen flex-col bg-black text-white selection:bg-[#6BCA6E] selection:text-black">
+      {/* Background (Global) */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-size-[20px_20px] opacity-20" />
       </div>
 
       {/* NAVBAR */}
       <Disclosure
         as="nav"
-        className="relative z-50 bg-gray-800/50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
+        className="relative z-50 border-b border-white/10 bg-black/80 backdrop-blur-md"
       >
         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
             {/* mobile menu button */}
             <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
+              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#6BCA6E]/10 hover:text-[#6BCA6E] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#6BCA6E]">
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open main menu</span>
                 <Bars3Icon
@@ -57,13 +79,17 @@ export default function AppLayout() {
 
             {/* logo + main links */}
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <div className="flex shrink-0 items-center">
-                <p className="h-8 w-auto text-md font-semibold " alt="daif blog">
-                  D
-                </p>
+              <div
+                className="flex shrink-0 items-center cursor-pointer"
+                onClick={handleLogoClick}
+              >
+                {/* Logo "D" with pulse animation */}
+                <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border border-[#6BCA6E] bg-black shadow-[0_0_10px_rgba(107,202,110,0.5)] transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(107,202,110,0.8)]">
+                  <span className="font-bold text-[#6BCA6E] text-xl group-hover:animate-pulse">D</span>
+                </div>
               </div>
               <div className="hidden sm:ml-6 sm:block">
-                <div className="flex space-x-4">
+                <div className="flex space-x-4 items-center h-full">
                   {navigation.map((item) => (
                     <Link
                       key={item.name}
@@ -71,12 +97,10 @@ export default function AppLayout() {
                       className={({ isActive }) =>
                         classNames(
                           isActive
-                            ? "bg-gray-950/50 text-white"
-                            : "text-gray-300 hover:bg-white/5 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium"
+                            ? "bg-[#6BCA6E]/20 text-[#6BCA6E] border border-[#6BCA6E]/50"
+                            : "text-gray-300 hover:bg-white/5 hover:text-[#6BCA6E]",
+                          "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200"
                         )
-
-
                       }
                     >
                       {item.name}
@@ -90,7 +114,7 @@ export default function AppLayout() {
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <Link
                 to="/posts/new"
-                className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                className="hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm font-semibold text-black shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
               >
                 New Post
               </Link>
@@ -98,7 +122,7 @@ export default function AppLayout() {
               {user ? (
                 // Profile dropdown when logged in
                 <Menu as="div" className="relative ml-3">
-                  <MenuButton className="relative flex items-center justify-center rounded-full p-2 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                  <MenuButton className="relative flex items-center justify-center rounded-full p-2 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span className="absolute -inset-1.5" />
                     <span className="sr-only">Open user menu</span>
                     {/* User icon */}
@@ -106,26 +130,26 @@ export default function AppLayout() {
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      strokeWidth={2}
+                      strokeWidth={1.5}
                       stroke="currentColor"
-                      className="h-7 w-7 text-gray-200"
+                      className="size-6"
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
                       />
                     </svg>
                   </MenuButton>
 
                   <MenuItems
                     transition
-                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 outline -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-black border border-gray-800 py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                   >
                     <MenuItem>
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
+                        className="block px-4 py-2 text-sm text-gray-300 data-[focus]:bg-white/5 data-[focus]:text-white data-[focus]:outline-none"
                       >
                         Profile
                       </Link>
@@ -133,7 +157,7 @@ export default function AppLayout() {
                     <MenuItem>
                       <button
                         onClick={() => dispatch(logout())}
-                        className="block w-full px-4 py-2 text-left text-sm text-red-400 data-focus:bg-white/5 data-focus:outline-hidden"
+                        className="block w-full px-4 py-2 text-left text-sm text-red-400 data-[focus]:bg-white/5 data-[focus]:outline-none"
                       >
                         Logout
                       </button>
@@ -145,13 +169,13 @@ export default function AppLayout() {
                 <div className="ml-3 flex gap-4 text-sm">
                   <Link
                     to="/login"
-                    className="text-gray-300 hover:text-white hover:underline"
+                    className="text-gray-300 hover:text-[#6BCA6E] transition-colors"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="text-gray-300 hover:text-white hover:underline"
+                    className="text-gray-300 hover:text-[#6BCA6E] transition-colors"
                   >
                     Register
                   </Link>
@@ -162,7 +186,7 @@ export default function AppLayout() {
         </div>
 
         {/* mobile links */}
-        <DisclosurePanel className="sm:hidden">
+        <DisclosurePanel className="sm:hidden border-t border-gray-800 bg-black">
           <div className="space-y-1 px-2 pt-2 pb-3">
             {navigation.map((item) => (
               <DisclosureButton
@@ -172,7 +196,7 @@ export default function AppLayout() {
                 className={({ isActive }) =>
                   classNames(
                     isActive
-                      ? "bg-gray-950/50 text-white"
+                      ? "bg-[#6BCA6E]/10 text-[#6BCA6E]"
                       : "text-gray-300 hover:bg-white/5 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium"
                   )
@@ -181,14 +205,48 @@ export default function AppLayout() {
                 {item.name}
               </DisclosureButton>
             ))}
+            <DisclosureButton
+              as={Link}
+              to="/posts/new"
+              className="block w-full text-center mt-4 rounded bg-[#6BCA6E] px-3 py-2 text-base font-medium text-black hover:bg-[#5abc5d]"
+            >
+              New Post
+            </DisclosureButton>
           </div>
         </DisclosurePanel>
       </Disclosure>
 
       {/* PAGE CONTENT */}
-      <main className="relative z-10 p-6">
+      <main className="relative z-10 flex-grow p-6">
         <Outlet />
       </main>
+
+      {/* FOOTER */}
+      <footer className="relative z-10 border-t border-white/10 bg-black py-8">
+        <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-sm">D</div>
+            <span className="text-xl font-bold tracking-wider text-white">DAIF</span>
+          </div>
+
+          <div className="text-gray-500 text-sm">
+            &copy; 2025 DAIF. All rights reserved.
+          </div>
+
+          <div className="flex gap-4">
+            {/* Social Placeholders */}
+            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
+              GitHub
+            </a>
+            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
+              Twitter
+            </a>
+            <a href="#" className="text-gray-400 hover:text-[#6BCA6E] transition-colors">
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
