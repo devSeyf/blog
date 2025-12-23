@@ -5,7 +5,6 @@ import AppLayout from "../components/AppLayout";
 import RegisterPage from "../pages/RegisterPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProfilePage from "../pages/ProfilePage";
-import PostsPage from "../pages/PostsPage";
 import CreatePostPage from "../pages/CreatePostPage";
 import BattlePage from "../pages/BattlePage";
 
@@ -19,7 +18,6 @@ export default function AppRouter() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/posts" element={<PostsPage />} />
           <Route path="/posts/new" element={<CreatePostPage />} />
           <Route path="/battle" element={<BattlePage />} />
 

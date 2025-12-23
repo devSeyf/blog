@@ -65,7 +65,8 @@ export default function CreatePostPage() {
             <option>Tech</option>
             <option>Life</option>
             <option>Sports</option>
-            <option>Opinion</option>
+             <option>Business</option>
+             <option>Health</option>
           </select>
         </div>
 
