@@ -1,18 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { http } from "../api/http";
+import { http } from "../api/http"; // Ensure this instance supports FormData or let axios handle it
 import LoadingOverlay from "../components/LoadingOverlay";
 import Input from "../components/Input";
 import Button from "../components/Button";
 
+const CATEGORIES = ["Tech", "Design", "Random", "News", "Hacking", "Crypto"];
+
 export default function CreatePostPage() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState(""); // We assume text content for now
-  const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("Tech");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +30,17 @@ export default function CreatePostPage() {
     const start = Date.now();
 
     try {
-      await http.post("/posts", { title, content, category, imageUrl });
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("category", category);
+      if (file) {
+        formData.append("image", file); // Must match backend 'upload.single("image")'
+      }
+
+      // Send to Backend
+      // Header Content-Type: multipart/form-data is usually set automatically by browser when Body is FormData
+      await http.post("/posts", formData);
 
       const elapsed = Date.now() - start;
       const delay = Math.max(0, 800 - elapsed);
@@ -65,21 +83,35 @@ export default function CreatePostPage() {
             placeholder="Enter transmission subject..."
           />
 
-          <Input
-            label="Category (Optional)"
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="e.g. TECH, INTEL, MEME"
-          />
+          <div className="w-full">
+            <label htmlFor="category" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-[#0A0A0A] border border-gray-800 text-white px-4 py-3 rounded focus:outline-none focus:border-[#6BCA6E] focus:ring-1 focus:ring-[#6BCA6E] transition-all"
+            >
+              {CATEGORIES.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
 
-          <Input
-            label="Image Frequency URL (Optional)"
-            id="image"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://..."
-          />
+          <div className="w-full">
+            <label htmlFor="file" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
+              Attachment (Image) <span className="text-[#6BCA6E]">*</span>
+            </label>
+            <input
+              type="file"
+              id="file"
+              accept="image/*"
+              required // Backend says image is required
+              onChange={handleFileChange}
+              className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#6BCA6E] file:text-black hover:file:bg-[#5abc5d] cursor-pointer"
+            />
+          </div>
 
           <div className="space-y-1">
             <label htmlFor="content" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
@@ -98,7 +130,7 @@ export default function CreatePostPage() {
 
           <div className="pt-4 flex gap-4">
             <Button type="submit" className="flex-1">
-              Broadcast Message
+              Create Blog Post
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate("/")}>
               Cancel

@@ -7,9 +7,9 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { useEffect } from "react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Fragment, useEffect } from "react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 
@@ -48,11 +48,9 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white selection:bg-[#6BCA6E] selection:text-black">
-      {/* Background (Global) */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-size-[20px_20px] opacity-20" />
-      </div>
+    <div className="flex min-h-screen flex-col text-white selection:bg-[#6BCA6E] selection:text-black relative">
+      {/* GLOBAL BACKGROUND (Restored) */}
+      <div className="fixed inset-0 -z-50 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] pointer-events-none"></div>
 
       {/* NAVBAR */}
       <Disclosure
@@ -91,7 +89,7 @@ export default function AppLayout() {
               <div className="hidden sm:ml-6 sm:block">
                 <div className="flex space-x-4 items-center h-full">
                   {navigation.map((item) => (
-                    <Link
+                    <NavLink
                       key={item.name}
                       to={item.href}
                       className={({ isActive }) =>
@@ -104,7 +102,7 @@ export default function AppLayout() {
                       }
                     >
                       {item.name}
-                    </Link>
+                    </NavLink>
                   ))}
                 </div>
               </div>
@@ -217,24 +215,20 @@ export default function AppLayout() {
       </Disclosure>
 
       {/* PAGE CONTENT */}
-      <main className="relative z-10 grow p-6">
+      <main className="relative z-10 flex-grow p-6 min-h-screen">
         <Outlet />
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 border-t border-white/10 bg-black py-8">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="relative z-10 border-t border-white/10 bg-black py-6">
+        <div className="mx-auto max-w-7xl px-4 flex flex-col items-center justify-center gap-2">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-sm">B</div>
-            <span className="text-xl font-bold tracking-wider text-white">Blog Battle</span>
+            <div className="h-6 w-6 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-xs">D</div>
+            <span className="text-lg font-bold tracking-wider text-white">Blog Battle</span>
           </div>
 
-          <div className="text-gray-500 text-sm">
+          <div className="text-gray-600 text-xs">
             &copy; 2025 Blog Battle. All rights reserved.
-          </div>
-
-          <div className="flex gap-4">
-            {/* Social Links Removed */}
           </div>
         </div>
       </footer>

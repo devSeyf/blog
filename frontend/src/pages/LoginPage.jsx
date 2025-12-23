@@ -25,20 +25,26 @@ export default function LoginPage() {
         const start = Date.now();
 
         try {
-            const res = await http.post("/auth/login", { email, password });
+            // Dispatch the login Thunk directly
+            // This handles the API call and Redux state update internally
+            const resultAction = await dispatch(login({ email, password }));
 
             const elapsed = Date.now() - start;
             const delay = Math.max(0, 800 - elapsed);
 
             setTimeout(() => {
-                dispatch(login({ user: res.data.user, token: res.data.token }));
-                setLoading(false); // Hide before nav for smoother transition
-                navigate("/");
+                if (login.fulfilled.match(resultAction)) {
+                    navigate("/");
+                } else {
+                    // If the thunk rejected, the payload contains the error message
+                    setError(resultAction.payload || "Authentication failed");
+                }
+                setLoading(false);
             }, delay);
 
         } catch (err) {
             setLoading(false);
-            setError(err.response?.data?.message || err.message);
+            setError("An unexpected error occurred");
         }
     };
 

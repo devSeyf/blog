@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../features/auth/authSlice"; // Auto-login often uses same action
+import { login, register } from "../features/auth/authSlice"; // Auto-login often uses same action
 import { http } from "../api/http";
 import LoadingOverlay from "../components/LoadingOverlay";
 import Input from "../components/Input";
@@ -25,25 +25,23 @@ export default function RegisterPage() {
     const start = Date.now();
 
     try {
-      const res = await http.post("/auth/register", { name, email, password });
+      const resultAction = await dispatch(register({ name, email, password }));
 
       const elapsed = Date.now() - start;
       const delay = Math.max(0, 800 - elapsed);
 
       setTimeout(() => {
-        // Auto login on register success if API returns token, else redirect to login
-        if (res.data.token) {
-          dispatch(login({ user: res.data.user, token: res.data.token }));
+        if (register.fulfilled.match(resultAction)) {
           navigate("/");
         } else {
-          navigate("/login");
+          setError(resultAction.payload || "Registration failed");
         }
         setLoading(false);
       }, delay);
 
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || err.message);
+      setError("An unexpected error occurred");
     }
   };
 

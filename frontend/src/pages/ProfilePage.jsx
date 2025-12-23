@@ -7,7 +7,6 @@ export default function ProfilePage() {
   const token = useSelector((state) => state.auth.token);
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ totalPosts: 0, totalVotes: 0 });
 
   useEffect(() => {
     if (!user || !token) return;
@@ -25,10 +24,6 @@ export default function ProfilePage() {
         );
 
         setUserPosts(myPosts);
-
-        // Calculate stats
-        const votes = myPosts.reduce((acc, curr) => acc + (curr.votesCount || 0), 0);
-        setStats({ totalPosts: myPosts.length, totalVotes: votes });
       } catch (e) {
         console.error("Failed to fetch user posts", e);
       } finally {
@@ -68,36 +63,8 @@ export default function ProfilePage() {
               <span className="text-[#6BCA6E]">Role: APPLICANT // ID: {user._id?.slice(-6).toUpperCase()}</span>
             </p>
             <p className="text-gray-300 max-w-lg mx-auto md:mx-0">
-              Full Stack Developer passionate about building secure and scalable systems.
-              Exploring the digital frontier.
+              info 
             </p>
-          </div>
-
-          {/* Edit Button */}
-          <div>
-            <button className="rounded border border-[#6BCA6E] px-6 py-2 text-sm font-bold text-[#6BCA6E] transition-all hover:bg-[#6BCA6E] hover:text-black hover:shadow-[0_0_15px_rgba(107,202,110,0.4)]">
-              EDIT_PROFILE
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Row */}
-        <div className="mt-8 grid grid-cols-2 gap-4 border-t border-gray-800 pt-8 md:grid-cols-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[#6BCA6E]">{stats.totalPosts}</div>
-            <div className="text-xs uppercase tracking-wider text-gray-500">Global Posts</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[#6BCA6E]">{stats.totalVotes}</div>
-            <div className="text-xs uppercase tracking-wider text-gray-500">Votes Received</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white">12</div>
-            <div className="text-xs uppercase tracking-wider text-gray-500">Battles Won</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white">98%</div>
-            <div className="text-xs uppercase tracking-wider text-gray-500">Reputation</div>
           </div>
         </div>
       </div>
