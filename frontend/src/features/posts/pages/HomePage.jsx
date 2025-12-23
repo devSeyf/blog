@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { http } from "../api/http";
+import { http } from "../../../api/http";
 
-import LoadingOverlay from "../shared/components/LoadingOverlay";
-
+import LoadingOverlay from "../../../shared/components/LoadingOverlay";
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);

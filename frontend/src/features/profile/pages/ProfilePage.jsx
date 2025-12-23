@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { http } from "../api/http";
+import { http } from "../../../api/http";
 
 export default function ProfilePage() {
   const user = useSelector((state) => state.auth.user);
@@ -63,7 +63,7 @@ export default function ProfilePage() {
               <span className="text-[#6BCA6E]">Role: APPLICANT // ID: {user._id?.slice(-6).toUpperCase()}</span>
             </p>
             <p className="text-gray-300 max-w-lg mx-auto md:mx-0">
-              info 
+              info
             </p>
           </div>
         </div>

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { login, register } from "../features/auth/authSlice"; // Auto-login often uses same action
-import { http } from "../api/http";
-import LoadingOverlay from "../shared/components/LoadingOverlay";
-import Input from "../shared/components/Input";
-import Button from "../shared/components/Button";
+import { login, register } from "../authSlice"; // Auto-login often uses same action
+import { http } from "../../../api/http";
+import LoadingOverlay from "../../../shared/components/LoadingOverlay";
+import Input from "../../../shared/components/Input";
+import Button from "../../../shared/components/Button";
 
 export default function RegisterPage() {
   const dispatch = useDispatch();

@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import LoginPage from "../pages/LoginPage";
+import HomePage from "../features/posts/pages/HomePage";
+import LoginPage from "../features/auth/pages/LoginPage";
 import AppLayout from "../shared/layout/AppLayout";
-import RegisterPage from "../pages/RegisterPage";
-import NotFoundPage from "../pages/NotFoundPage";
-import ProfilePage from "../pages/ProfilePage";
-import CreatePostPage from "../pages/CreatePostPage";
-import BattlePage from "../pages/BattlePage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
+import NotFoundPage from "../features/common/pages/NotFoundPage";
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import CreatePostPage from "../features/posts/pages/CreatePostPage";
+import BattlePage from "../features/battle/pages/BattlePage";
 
 export default function AppRouter() {
   return (
