@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { login, register } from "../authSlice"; // Auto-login often uses same action
-import { http } from "../../../api/http";
+import { login, register } from "../authSlice";
 import { http } from "../../../api/http";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
@@ -21,13 +20,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    let timerId;
-
     try {
-
-      timerId = setTimeout(() => {
-        setLoading(true);
-      }, 250);
+      setLoading(true); // ✅ Immediate loading
 
       const resultAction = await dispatch(
         register({ name, email, password })
@@ -41,11 +35,9 @@ export default function RegisterPage() {
     } catch (err) {
       setError("An unexpected error occurred");
     } finally {
-      clearTimeout(timerId);
       setLoading(false);
     }
   };
-
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
 

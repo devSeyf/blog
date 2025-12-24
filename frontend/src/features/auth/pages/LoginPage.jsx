@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../authSlice";
 import { http } from "../../../api/http";
-import { http } from "../../../api/http";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
 
