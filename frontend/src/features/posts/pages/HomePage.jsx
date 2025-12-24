@@ -45,7 +45,7 @@ export default function HomePage() {
         };
 
         timings.requestSent = performance.now();
-        console.log('🚀 Request sent at:', Math.round(timings.requestSent - timings.start), 'ms');
+    
 
         const res = await http.get(`/posts?page=${page}&limit=${POSTS_PER_PAGE}`);
 

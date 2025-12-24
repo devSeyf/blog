@@ -102,7 +102,7 @@ export default function ProfilePage() {
               <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-800 pt-3">
                 <span>Votes: <span className="text-[#6BCA6E]">{post.votesCount || 0}</span></span>
                 <button className="text-white hover:text-[#6BCA6E] transition-colors uppercase tracking-wider font-bold">
-                  View_Log
+                  View 
                 </button>
               </div>
             </div>
