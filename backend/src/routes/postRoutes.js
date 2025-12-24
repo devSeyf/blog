@@ -1,7 +1,9 @@
 import express from "express";
+import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import { protect } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
+import { cacheMiddleware, clearCache } from "../middleware/cache.js";
 
 
 import cloudinary from "../config/cloudinary.js";
@@ -10,17 +12,133 @@ const router = express.Router();
 
 /**
  * GET /api/posts
- * Public: list all posts
+ * Public: list all posts with pagination
+ * HEAVILY INSTRUMENTED FOR PERFORMANCE DEBUGGING
  */
-router.get("/", async (req, res) => {
+router.get("/", cacheMiddleware(30), async (req, res) => {
+  const timings = {
+    requestReceived: performance.now(),
+    parseQueryParams: 0,
+    dbConnectionCheck: 0,
+    countQueryStart: 0,
+    countQueryEnd: 0,
+    findQueryStart: 0,
+    findQueryEnd: 0,
+    responseReady: 0,
+    responseSent: 0
+  };
+
   try {
+    console.log('\n========================================');
+    console.log('📥 GET /posts - REQUEST RECEIVED');
+    console.log('========================================');
+
+    // Step 1: Parse query params
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    timings.parseQueryParams = performance.now();
+    console.log(`⏱️  Parse params: ${Math.round(timings.parseQueryParams - timings.requestReceived)}ms`);
+
+    // Step 2: Check DB connection
+    const dbState = mongoose.connection.readyState;
+    const dbStateNames = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    console.log(`🗄️  DB Connection State: ${dbState} (${dbStateNames[dbState]})`);
+    timings.dbConnectionCheck = performance.now();
+    console.log(`⏱️  DB check: ${Math.round(timings.dbConnectionCheck - timings.parseQueryParams)}ms`);
+
+    if (dbState !== 1) {
+      console.error('❌ DATABASE NOT CONNECTED!');
+      console.error('   This is likely causing the 4-second delay!');
+      return res.status(500).json({ message: 'Database connection error' });
+    }
+
+    // Step 3: Count query
+    console.log('🔍 Starting countDocuments query...');
+    timings.countQueryStart = performance.now();
+    const totalCount = await Post.countDocuments();
+    timings.countQueryEnd = performance.now();
+    const countDuration = Math.round(timings.countQueryEnd - timings.countQueryStart);
+    console.log(`✅ Count query completed: ${totalCount} posts`);
+    console.log(`⏱️  Count query: ${countDuration}ms`);
+
+    if (countDuration > 300) {
+      console.warn(`⚠️  WARNING: Count query is SLOW (${countDuration}ms > 300ms)`);
+      console.warn('   → Check if indexes exist: db.posts.getIndexes()');
+    }
+
+    // Step 4: Find query with populate and sort
+    console.log('🔍 Starting find query (with populate and sort)...');
+    timings.findQueryStart = performance.now();
+
     const posts = await Post.find()
       .populate("author", "name email")
-      .sort({ votesCount: -1, createdAt: -1 });
+      .select("-voters")
+      .sort({ votesCount: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.json({ posts });
+    timings.findQueryEnd = performance.now();
+    const findDuration = Math.round(timings.findQueryEnd - timings.findQueryStart);
+    console.log(`✅ Find query completed: ${posts.length} posts retrieved`);
+    console.log(`⏱️  Find query (with populate & sort): ${findDuration}ms`);
+
+    if (findDuration > 500) {
+      console.warn(`⚠️  WARNING: Find query is VERY SLOW (${findDuration}ms > 500ms)`);
+      console.warn('   → Check if compound index exists: { votesCount: -1, createdAt: -1 }');
+      console.warn('   → Run: db.posts.find().sort({votesCount:-1,createdAt:-1}).explain("executionStats")');
+    }
+
+    // Step 5: Prepare response
+    timings.responseReady = performance.now();
+
+    const response = {
+      posts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalPosts: totalCount,
+        postsPerPage: limit,
+        hasMore: skip + posts.length < totalCount
+      }
+    };
+
+    // Step 6: Send response
+    res.json(response);
+    timings.responseSent = performance.now();
+
+    // Final timing report
+    const totalTime = timings.responseSent - timings.requestReceived;
+    console.log('\n========================================');
+    console.log('📊 DETAILED TIMING BREAKDOWN:');
+    console.log('========================================');
+    console.log(`Parse params:     ${Math.round(timings.parseQueryParams - timings.requestReceived)}ms`);
+    console.log(`DB check:         ${Math.round(timings.dbConnectionCheck - timings.parseQueryParams)}ms`);
+    console.log(`Count query:      ${Math.round(timings.countQueryEnd - timings.countQueryStart)}ms`);
+    console.log(`Find query:       ${Math.round(timings.findQueryEnd - timings.findQueryStart)}ms`);
+    console.log(`Prepare response: ${Math.round(timings.responseReady - timings.findQueryEnd)}ms`);
+    console.log(`Send response:    ${Math.round(timings.responseSent - timings.responseReady)}ms`);
+    console.log('----------------------------------------');
+    console.log(`⏱️  TOTAL TIME:     ${Math.round(totalTime)}ms`);
+    console.log('========================================\n');
+
+    // Overall warnings
+    if (totalTime > 1000) {
+      console.warn(`🚨 CRITICAL: Total request time is ${Math.round(totalTime)}ms (target: <200ms)`);
+      console.warn('   This explains your 4-second TTFB!');
+      console.warn('   Check the breakdown above to see where time is spent.');
+    } else if (totalTime > 500) {
+      console.warn(`⚠️  WARNING: Request took ${Math.round(totalTime)}ms (target: <200ms)`);
+    } else {
+      console.log(`✅ GOOD: Request completed in ${Math.round(totalTime)}ms`);
+    }
+
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    const errorTime = performance.now() - timings.requestReceived;
+    console.error('❌ ERROR in GET /posts:', err);
+    console.error(`⏱️  Failed after: ${Math.round(errorTime)}ms`);
+    console.error('   Stack trace:', err.stack);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
@@ -46,9 +164,9 @@ router.post("/", protect, (req, res, next) => {
       return res.status(400).json({ message: "title, content, category are required" });
     }
 
-   //  if (!req.file) {
-   //    return res.status(400).json({ message: "image is required" });
-   //  }
+    //  if (!req.file) {
+    //    return res.status(400).json({ message: "image is required" });
+    //  }
 
     const post = await Post.create({
       title,
@@ -60,6 +178,7 @@ router.post("/", protect, (req, res, next) => {
     });
 
     const populated = await Post.findById(post._id).populate("author", "name email");
+    clearCache('/api/posts');
     res.status(201).json({ post: populated });
   } catch (err) {
     res.status(500).json({ message: err.message || "Server error" });
@@ -145,7 +264,7 @@ router.put(
           // cloudinary destroy (ignore errors)
           try {
             await cloudinary.uploader.destroy(post.imagePublicId);
-          } catch {}
+          } catch { }
         }
         post.imageUrl = req.file.path;
         post.imagePublicId = req.file.filename;
@@ -154,6 +273,7 @@ router.put(
       await post.save();
 
       const populated = await Post.findById(post._id).populate("author", "name email");
+      clearCache('/api/posts');
       res.json({ post: populated });
     } catch (err) {
       res.status(500).json({ message: err.message || "Server error" });
@@ -177,10 +297,11 @@ router.delete("/:id", protect, async (req, res) => {
     if (post.imagePublicId) {
       try {
         await cloudinary.uploader.destroy(post.imagePublicId);
-      } catch {}
+      } catch { }
     }
 
     await post.deleteOne();
+    clearCache('/api/posts');
     res.json({ message: "Post deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message || "Server error" });
@@ -213,6 +334,7 @@ router.post("/:id/vote", protect, async (req, res) => {
     await post.save();
 
     const populated = await Post.findById(post._id).populate("author", "name email");
+    clearCache('/api/posts');
     res.json({ post: populated });
   } catch (err) {
     res.status(500).json({ message: "Server error" });

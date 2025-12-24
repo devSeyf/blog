@@ -25,38 +25,37 @@ export default function CreatePostPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
 
-    const start = Date.now();
+  let timerId;
 
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("content", content);
-      formData.append("category", category);
-      if (file) formData.append("image", file);
+  try {
+     
+    timerId = setTimeout(() => {
+      setLoading(true);
+    }, 250);
 
-      const res = await http.post("/posts", formData);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", category);
+    if (file) formData.append("image", file);
 
-      const elapsed = Date.now() - start;
-      const delay = Math.max(0, 800 - elapsed);
+    const res = await http.post("/posts", formData);
 
-      setTimeout(() => {
-        setLoading(false);
+    navigate("/", {
+      state: { refresh: Date.now(), createdPostId: res.data?.post?._id },
+    });
+  } catch (e2) {
+    setError(e2.response?.data?.message || e2.message);
+  } finally {
+    clearTimeout(timerId);
+    setLoading(false);
+  }
+};
 
-        // ✅ رجّع للهوم مع refresh key حتى HomePage يعمل fetch من جديد
-        navigate("/", {
-          state: { refresh: Date.now(), createdPostId: res.data?.post?._id },
-        });
-      }, delay);
-    } catch (e2) {
-      setLoading(false);
-      setError(e2.response?.data?.message || e2.message);
-    }
-  };
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">

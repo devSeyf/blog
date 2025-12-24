@@ -100,7 +100,7 @@ export default function BattlePage() {
                 <h2 className="text-xl font-bold mb-2">SYSTEM ERROR</h2>
                 {error}
                 <div className="mt-4">
-                    <Button onClick={() => window.location.reload()} variant="danger">Reload System</Button>
+                    <Button onClick={() => window.location.reload()} variant="danger">Reload Battle</Button>
                 </div>
             </div>
         </div>
@@ -115,11 +115,11 @@ export default function BattlePage() {
 
             <div className="text-center space-y-2">
                 <h1 className="text-4xl font-bold text-white tracking-widest uppercase">
-                    Blog Battle
-                    <span className="text-[#6BCA6E]">.exe</span>
+                    Blog 
+                    <span className="text-[#6BCA6E]"> Battle</span>
                 </h1>
                 <p className="text-gray-400 font-mono text-sm max-w-lg mx-auto">
-                    Compare two data streams. Execute your choice. Analyze consensus.
+                    Compare two data streams.  
                 </p>
             </div>
 
@@ -156,11 +156,11 @@ export default function BattlePage() {
 
             <div className="flex justify-center gap-4 pt-8">
                 <Button onClick={loadBattle}>
-                    Next_Battle (Process)
+                    Next Battle  
                 </Button>
 
                 <Button onClick={() => window.location.reload()} variant="outline">
-                    Reload_System
+                    Reload Battle
                 </Button>
             </div>
         </div>
@@ -184,7 +184,7 @@ function BattleCard({ post, side, voted, isWinner, animated, percent, rawVotes, 
 
             <div className="relative z-10 space-y-4 flex-grow">
                 <div className="flex justify-between items-start">
-                    <span className="font-mono text-xs text-gray-500 uppercase">ID_{side}::{post._id.slice(-4)}</span>
+                    <span className="font-mono text-xs text-gray-500 uppercase">ID:{post._id.slice(-4)}</span>
                     {voted && isWinner && (
                         <span className="inline-block px-2 py-0.5 text-xs font-bold bg-[#6BCA6E] text-black rounded animate-pulse">
                             VICTORY
@@ -207,7 +207,7 @@ function BattleCard({ post, side, voted, isWinner, animated, percent, rawVotes, 
             <div className="relative z-10 mt-6 pt-6 border-t border-gray-800">
                 {!voted ? (
                     <Button onClick={onVote} variant="outline" className="w-full text-center">
-                        Execute Vote_{side === "left" ? "A" : "B"}
+                          Vote {side === "left" ? "A" : "B"}
                     </Button>
                 ) : (
                     <div className="space-y-2">
@@ -221,7 +221,7 @@ function BattleCard({ post, side, voted, isWinner, animated, percent, rawVotes, 
                                 style={{ width: `${percent}%` }}
                             />
                         </div>
-                        <div className="text-right text-xs text-gray-500 font-mono">RAW_COUNT: {rawVotes}</div>
+                        <div className="text-right text-xs text-gray-500 font-mono">COUNT VOTES: {rawVotes}</div>
                     </div>
                 )}
             </div>

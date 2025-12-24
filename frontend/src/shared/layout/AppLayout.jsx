@@ -109,10 +109,10 @@ export default function AppLayout() {
             </div>
 
             {/* right side: auth + notifications + profile */}
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="  absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <Link
                 to="/posts/new"
-                className="hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm font-semibold text-black shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
+                className="hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
               >
                 New Post
               </Link>
