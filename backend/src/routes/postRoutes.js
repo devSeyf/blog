@@ -28,22 +28,22 @@ router.get("/", async (req, res) => {
     console.log('get post after ');
     console.log('get post after ');
     const totalCount = await Post.countDocuments();
-      console.log('start transfrom json ');
-      res.json({
-        posts,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(totalCount / limit),
-          totalPosts: totalCount,
-        },
-        
+    console.log('start transfrom json ');
+    res.json({
+      posts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalPosts: totalCount,
+      },
+
     }
-  
-  );
-          console.log('after transform json  ');
+
+    );
+    console.log('after transform json  ');
 
   }
-  
+
   catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -60,9 +60,9 @@ router.post(
     upload.single("image")(req, res, (err) => {
       if (err) {
         console.error("Upload Error Details:", err);
-        return res.status(500).json({
+        return res.status(400).json({
           message:
-            "Image upload failed: " + (err.message || JSON.stringify(err)),
+            "Image upload failed: " + (err.message || "Invalid file type or size"),
         });
       }
       next();
@@ -76,7 +76,11 @@ router.post(
       if (!title || !content || !category) {
         return res
           .status(400)
-          .json({ message: "title, content, category are required" });
+          .json({ message: "Title, content, and category are all required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Image is required" });
       }
 
       const post = new Post({
@@ -84,15 +88,12 @@ router.post(
         content,
         category,
         author: req.user._id,
-        imageUrl: req.file?.path || null,
-        imagePublicId: req.file?.filename || null,
+        imageUrl: req.file.path,
+        imagePublicId: req.file.filename,
       });
 
       await post.save();
 
-      // OPTIMIZATION: Manually construct the response or use execPopulate (if supported) 
-      // instead of a full new findById lookup. 
-      // Actually, we can just attach the user info from req.user
       const responseObject = post.toObject();
       responseObject.author = {
         _id: req.user._id,
@@ -100,13 +101,13 @@ router.post(
         email: req.user.email
       };
 
-       
       const duration = Math.round(performance.now() - startTime);
       console.log(`  POST creation took ${duration}ms`);
 
       res.status(201).json({ post: responseObject });
     } catch (err) {
-      res.status(500).json({ message: err.message || "Server error" });
+      console.error("Post creation error:", err);
+      res.status(500).json({ message: err.message || "Server error during post creation" });
     }
   }
 );
@@ -201,7 +202,7 @@ router.put(
         email: req.user.email
       };
 
-       
+
       res.json({ post: responseObject });
     } catch (err) {
       res.status(500).json({ message: err.message || "Server error" });
@@ -227,7 +228,7 @@ router.delete("/:id", protect, async (req, res) => {
     }
 
     await post.deleteOne();
-     
+
     res.json({ message: "Post deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message || "Server error" });
@@ -262,7 +263,7 @@ router.post("/:id/vote", protect, async (req, res) => {
         .json({ message: "You already voted for this post" });
     }
 
-   
+
     res.json({ post });
   } catch (err) {
     console.error("Vote error:", err.message);
