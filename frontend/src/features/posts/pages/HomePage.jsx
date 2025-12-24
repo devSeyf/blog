@@ -51,11 +51,7 @@ export default function HomePage() {
         const res = await http.get(`/posts?page=${page}&limit=${POSTS_PER_PAGE}`);
 
         timings.responseReceived = performance.now();
-        console.log('📦 Response received at:', Math.round(timings.responseReceived - timings.start), 'ms');
-        console.log('⏱️  TTFB:', Math.round(timings.responseReceived - timings.requestSent), 'ms');
-        console.log('📊 Response size:', (JSON.stringify(res.data).length / 1024).toFixed(2), 'KB');
-        console.log('📝 Number of posts:', res.data.posts?.length || 0);
-        console.log('📄 Page:', res.data.pagination?.currentPage, 'of', res.data.pagination?.totalPages);
+ 
 
         if (isMounted) {
           setPosts(res.data.posts || []);
@@ -70,11 +66,11 @@ export default function HomePage() {
         // Measure render time
         requestAnimationFrame(() => {
           timings.renderComplete = performance.now();
-          console.log('🎨 Render complete at:', Math.round(timings.renderComplete - timings.start), 'ms');
-          console.log('📊 Total time:', Math.round(timings.renderComplete - timings.start), 'ms');
+          console.log('  Render complete at:', Math.round(timings.renderComplete - timings.start), 'ms');
+          console.log('  Total time:', Math.round(timings.renderComplete - timings.start), 'ms');
         });
       } catch (e) {
-        console.error('❌ Error:', e);
+        console.error('  Error:', e);
         if (isMounted) setError(e.response?.data?.message || e.message);
       } finally {
         clearTimeout(timerId);

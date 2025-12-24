@@ -109,12 +109,12 @@ const PostCard = memo(({ post, user, token, onVote, onEdit, onDelete }) => {
                         <button
                             onClick={() => onVote(post._id)}
                             disabled={voted}
-                            className={`relative overflow-hidden rounded px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${voted
-                                    ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                            className={`relative overflow-hidden  rounded px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${voted
+                                    ? "bg-gray-800 text-white cursor-not-allowed border border-gray-700"
                                     : "bg-[#6BCA6E] text-black hover:bg-[#5abc5d] hover:shadow-[0_0_10px_rgba(107,202,110,0.4)]"
                                 }`}
                         >
-                            {voted ? "Locked" : "Execute Vote"}
+                            {voted ? "Locked" : "Vote"}
                         </button>
                     </>
                 )}

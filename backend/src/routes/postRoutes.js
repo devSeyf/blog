@@ -319,25 +319,32 @@ router.post("/:id/vote", protect, async (req, res) => {
     const postId = req.params.id;
     const userId = req.user._id;
 
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
+    // Use atomic update to avoid race conditions and bypass full document validation
+    // $addToSet ensures user can only vote once
+    // $inc increments the vote count
+    const post = await Post.findOneAndUpdate(
+      { _id: postId, voters: { $ne: userId } },
+      {
+        $addToSet: { voters: userId },
+        $inc: { votesCount: 1 }
+      },
+      { new: true }
+    ).populate("author", "name email");
 
-    // no two vote
-    const alreadyVoted = post.voters.some((v) => v.toString() === userId.toString());
-    if (alreadyVoted) {
+    if (!post) {
+      // Check if post exists at all
+      const exists = await Post.findById(postId);
+      if (!exists) {
+        return res.status(404).json({ message: "Post not found" });
+      }
       return res.status(400).json({ message: "You already voted for this post" });
     }
 
-    post.voters.push(userId);
-    post.votesCount += 1;
-
-    await post.save();
-
-    const populated = await Post.findById(post._id).populate("author", "name email");
     clearCache('/api/posts');
-    res.json({ post: populated });
+    res.json({ post });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error('❌ Vote error:', err.message);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 

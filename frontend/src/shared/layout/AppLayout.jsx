@@ -49,8 +49,7 @@ export default function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col text-white selection:bg-[#6BCA6E] selection:text-black relative">
-      {/* GLOBAL BACKGROUND (Restored) */}
-      <div className="fixed inset-0 -z-50 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+ 
 
       {/* NAVBAR */}
       <Disclosure
@@ -112,7 +111,7 @@ export default function AppLayout() {
             <div className="  absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <Link
                 to="/posts/new"
-                className="hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
+                className=" text-gray-100 hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
               >
                 New Post
               </Link>
@@ -206,7 +205,7 @@ export default function AppLayout() {
             <DisclosureButton
               as={Link}
               to="/posts/new"
-              className="block w-full text-center mt-4 rounded bg-[#6BCA6E] px-3 py-2 text-base font-medium text-black hover:bg-[#5abc5d]"
+              className="text-gray-100 block w-full text-center mt-4 rounded bg-[#6BCA6E] px-3 py-2 text-base font-medium text-black hover:bg-[#5abc5d]"
             >
               New Post
             </DisclosureButton>
