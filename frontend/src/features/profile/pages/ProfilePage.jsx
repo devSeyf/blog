@@ -1,36 +1,54 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { http } from "../../../api/http";
 
 export default function ProfilePage() {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
+  const navigate = useNavigate();
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserPosts = async () => {
+    try {
+      const res = await http.get(`/posts`);
+      const allPosts = res.data.posts || [];
+      const myPosts = allPosts.filter(
+        (p) =>
+          p.author?._id === user._id ||
+          p.author?.id === user._id ||
+          p.author === user._id
+      );
+
+      setUserPosts(myPosts);
+    } catch (e) {
+      console.error("Failed to fetch user posts", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user || !token) return;
-    const fetchUserPosts = async () => {
-      try {
-        const res = await http.get(`/posts`);
-        const allPosts = res.data.posts || [];
-        const myPosts = allPosts.filter(
-          (p) =>
-            p.author?._id === user._id ||
-            p.author?.id === user._id ||
-            p.author === user._id
-        );
-
-        setUserPosts(myPosts);
-      } catch (e) {
-        console.error("Failed to fetch user posts", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserPosts();
   }, [user, token]);
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this transmission?")) {
+      return;
+    }
+
+    try {
+      await http.delete(`/posts/${postId}`);
+      toast.success("Transmission terminated successfully");
+      fetchUserPosts(); // Refresh list
+    } catch (e) {
+      console.error("Deletion failure", e);
+      toast.error(e.response?.data?.message || "Failed to delete post");
+    }
+  };
 
   if (!user) {
     return (
@@ -59,7 +77,7 @@ export default function ProfilePage() {
               <span className="text-[#6BCA6E]">Role: APPLICANT // ID: {user._id?.slice(-6).toUpperCase()}</span>
             </p>
             <p className="text-gray-300 max-w-lg mx-auto md:mx-0">
-              info
+              User Profile Archive // Accessing secure data transmissions...
             </p>
           </div>
         </div>
@@ -100,10 +118,29 @@ export default function ProfilePage() {
               </p>
 
               <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-800 pt-3">
-                <span>Votes: <span className="text-[#6BCA6E]">{post.votesCount || 0}</span></span>
-                <button className="text-white hover:text-[#6BCA6E] transition-colors uppercase tracking-wider font-bold">
-                  View 
-                </button>
+                <div className="flex gap-4">
+                  <span>Votes: <span className="text-[#6BCA6E]">{post.votesCount || 0}</span></span>
+                </div>
+                <div className="flex gap-4">
+                  <Link
+                    to={`/posts/${post._id}`}
+                    className="text-white hover:text-[#6BCA6E] transition-colors uppercase tracking-wider font-bold"
+                  >
+                    View
+                  </Link>
+                  <button
+                    onClick={() => navigate(`/posts/${post._id}/edit`)}
+                    className="text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wider font-bold"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(post._id)}
+                    className="text-red-500 hover:text-red-400 transition-colors uppercase tracking-wider font-bold"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}

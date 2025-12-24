@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Link } from "react-router-dom";
 import { optimizeCloudinaryUrl } from "../../../shared/utils/imageUtils";
 
 const PostCard = memo(({ post, user, token, onVote, onEdit, onDelete }) => {
@@ -83,14 +84,19 @@ const PostCard = memo(({ post, user, token, onVote, onEdit, onDelete }) => {
                 </div>
               )}
 
+              <Link
+                to={`/posts/${post._id}`}
+                className="rounded px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#6BCA6E] border border-[#6BCA6E]/50 hover:bg-[#6BCA6E]/10 transition-all duration-300"
+              >
+                Show
+              </Link>
               <button
                 onClick={() => onVote(post._id)}
                 disabled={voted}
-                className={`relative overflow-hidden rounded px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                  voted
-                    ? "bg-gray-800 text-white cursor-not-allowed border border-gray-700"
-                    : "bg-[#6BCA6E] text-black hover:bg-[#5abc5d] hover:shadow-[0_0_10px_rgba(107,202,110,0.4)]"
-                }`}
+                className={`relative overflow-hidden rounded px-6 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${voted
+                  ? "bg-gray-800 text-white cursor-not-allowed border border-gray-700"
+                  : "bg-[#6BCA6E] text-black hover:bg-[#5abc5d] hover:shadow-[0_0_10px_rgba(107,202,110,0.4)]"
+                  }`}
               >
                 {voted ? "Locked" : "Vote"}
               </button>
