@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { http } from "../../../api/http";
-import LoadingOverlay from "../../../shared/components/LoadingOverlay";
 import Button from "../../../shared/components/Button";
 
 export default function BattlePage() {
@@ -106,20 +105,19 @@ export default function BattlePage() {
         </div>
     );
 
-    if (!left || !right) return <LoadingOverlay visible={true} />;
+    if (!left || !right) return null;
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 py-10 px-4 min-h-[80vh] flex flex-col justify-center">
-            <LoadingOverlay visible={loading && !left} />
             {/* Note: We keep content visible when voting (loading=true) but show overlay if initial load */}
 
             <div className="text-center space-y-2">
                 <h1 className="text-4xl font-bold text-white tracking-widest uppercase">
-                    Blog 
+                    Blog
                     <span className="text-[#6BCA6E]"> Battle</span>
                 </h1>
                 <p className="text-gray-400 font-mono text-sm max-w-lg mx-auto">
-                    Compare two data streams.  
+                    Compare two data streams
                 </p>
             </div>
 
@@ -156,7 +154,7 @@ export default function BattlePage() {
 
             <div className="flex justify-center gap-4 pt-8">
                 <Button onClick={loadBattle}>
-                    Next Battle  
+                    Next Battle
                 </Button>
 
                 <Button onClick={() => window.location.reload()} variant="outline">
@@ -207,7 +205,7 @@ function BattleCard({ post, side, voted, isWinner, animated, percent, rawVotes, 
             <div className="relative z-10 mt-6 pt-6 border-t border-gray-800">
                 {!voted ? (
                     <Button onClick={onVote} variant="outline" className="w-full text-center">
-                          Vote {side === "left" ? "A" : "B"}
+                        Vote {side === "left" ? "A" : "B"}
                     </Button>
                 ) : (
                     <div className="space-y-2">

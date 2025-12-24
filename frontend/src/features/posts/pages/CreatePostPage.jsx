@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { http } from "../../../api/http";
-
-import LoadingOverlay from "../../../shared/components/LoadingOverlay";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
 
@@ -25,41 +23,40 @@ export default function CreatePostPage() {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
 
-  let timerId;
+    let timerId;
 
-  try {
-     
-    timerId = setTimeout(() => {
-      setLoading(true);
-    }, 250);
+    try {
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("category", category);
-    if (file) formData.append("image", file);
+      timerId = setTimeout(() => {
+        setLoading(true);
+      }, 250);
 
-    const res = await http.post("/posts", formData);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("category", category);
+      if (file) formData.append("image", file);
 
-    navigate("/", {
-      state: { refresh: Date.now(), createdPostId: res.data?.post?._id },
-    });
-  } catch (e2) {
-    setError(e2.response?.data?.message || e2.message);
-  } finally {
-    clearTimeout(timerId);
-    setLoading(false);
-  }
-};
+      const res = await http.post("/posts", formData);
+
+      navigate("/", {
+        state: { refresh: Date.now(), createdPostId: res.data?.post?._id },
+      });
+    } catch (e2) {
+      setError(e2.response?.data?.message || e2.message);
+    } finally {
+      clearTimeout(timerId);
+      setLoading(false);
+    }
+  };
 
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <LoadingOverlay visible={loading} />
 
       <div className="rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)]">
         <div className="mb-8 border-l-4 border-[#6BCA6E] pl-4">

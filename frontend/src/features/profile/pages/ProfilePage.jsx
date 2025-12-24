@@ -10,12 +10,10 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user || !token) return;
-
     const fetchUserPosts = async () => {
       try {
         const res = await http.get(`/posts`);
         const allPosts = res.data.posts || [];
-        // Filter posts by current user ID
         const myPosts = allPosts.filter(
           (p) =>
             p.author?._id === user._id ||
@@ -37,11 +35,10 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center text-gray-500">
-        <p>ACCESS DENIED: Please login to view profile.</p>
+        <p> Please login to view profile</p>
       </div>
     );
   }
-
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto py-10 px-4">
       {/* User Info Card */}
@@ -54,7 +51,6 @@ export default function ProfilePage() {
             </div>
             <div className="absolute inset-0 rounded-full bg-[#6BCA6E]/10 animate-pulse-green opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-
           {/* Info */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-3xl font-bold text-white mb-2">{user.name}</h1>
@@ -68,12 +64,10 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-
       {/* User Posts Section */}
       <h2 className="w-full text-left text-xl font-bold text-white mb-6 border-l-4 border-[#6BCA6E] pl-4">
         User Transmissions
       </h2>
-
       {loading ? (
         <div className="text-[#6BCA6E] animate-pulse">LOADING_DATA...</div>
       ) : userPosts.length === 0 ? (
@@ -84,8 +78,7 @@ export default function ProfilePage() {
         <div className="grid w-full gap-6 md:grid-cols-2">
           {userPosts.map((post) => (
             <div key={post._id} className="group relative overflow-hidden rounded-lg bg-[#0a0a0a] border border-gray-800 p-6 transition-all duration-300 hover:border-[#6BCA6E] hover:shadow-[0_0_15px_rgba(107,202,110,0.1)]">
-              <div className="absolute top-0 right-0 h-0 w-0 border-t-[20px] border-r-[20px] border-t-transparent border-r-[#6BCA6E]/0 transition-all duration-300 group-hover:border-r-[#6BCA6E]" />
-
+              <div className="absolute top-0 right-0 h-0 w-0 border-t-20px border-r-20px border-t-transparent border-r-[#6BCA6E]/0 transition-all duration-300 group-hover:border-r-[#6BCA6E]" />
               <div className="flex justify-between items-start mb-4">
                 <span className="font-mono text-xs text-gray-500">ID: {post._id.slice(-6).toUpperCase()}</span>
                 {post.category && (

@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "../shared/layout/AppLayout";
-import LoadingOverlay from "../shared/components/LoadingOverlay";
 
 // Lazy load all page components
 const HomePage = lazy(() => import("../features/posts/pages/HomePage"));
@@ -17,7 +16,7 @@ const EditPostPage = lazy(() => import("../features/posts/pages/EditPostPage"));
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<LoadingOverlay visible={true} />}>
+      <Suspense fallback={null}>
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />

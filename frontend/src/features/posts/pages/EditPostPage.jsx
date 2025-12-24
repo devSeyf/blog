@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { http } from "../../../api/http";
-
-import LoadingOverlay from "../../../shared/components/LoadingOverlay";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
 
@@ -63,11 +61,10 @@ export default function EditPostPage() {
     }
   };
 
-  if (loading) return <LoadingOverlay visible={true} />;
+  if (loading) return null;
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <LoadingOverlay visible={saving} />
 
       <div className="rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8">
         <h1 className="text-2xl font-bold text-white mb-6">Edit Post</h1>

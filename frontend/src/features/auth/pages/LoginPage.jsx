@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../authSlice";
 import { http } from "../../../api/http";
-import LoadingOverlay from "../../../shared/components/LoadingOverlay";
+import { http } from "../../../api/http";
 import Input from "../../../shared/components/Input";
 import Button from "../../../shared/components/Button";
 
@@ -16,37 +16,36 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
 
-  let timerId = null;
+        let timerId = null;
 
-  try {
-     
-    timerId = setTimeout(() => {
-      setLoading(true);
-    }, 250);
+        try {
 
-    const resultAction = await dispatch(login({ email, password }));
+            timerId = setTimeout(() => {
+                setLoading(true);
+            }, 250);
 
-    if (login.fulfilled.match(resultAction)) {
-      navigate("/");
-    } else {
-      setError(resultAction.payload || "Authentication failed");
-    }
-  } catch (err) {
-    setError("An unexpected error occurred");
-  } finally {
-    if (timerId) clearTimeout(timerId);
-    setLoading(false);
-  }
-};
+            const resultAction = await dispatch(login({ email, password }));
+
+            if (login.fulfilled.match(resultAction)) {
+                navigate("/");
+            } else {
+                setError(resultAction.payload || "Authentication failed");
+            }
+        } catch (err) {
+            setError("An unexpected error occurred");
+        } finally {
+            if (timerId) clearTimeout(timerId);
+            setLoading(false);
+        }
+    };
 
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center p-4">
-            <LoadingOverlay visible={loading} />
 
             <div className="w-full max-w-md space-y-8 rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)] backdrop-blur-sm">
                 <div className="text-center">

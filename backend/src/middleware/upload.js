@@ -7,8 +7,6 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => ({
     folder: "blog_battle_posts",
     resource_type: "image",
-    // optional: enforce format
-    // format: "jpg",
   }),
 });
 

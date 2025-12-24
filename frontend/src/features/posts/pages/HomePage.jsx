@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { http } from "../../../api/http";
-import LoadingOverlay from "../../../shared/components/LoadingOverlay";
 import PostCard from "../components/PostCard";
 
 export default function HomePage() {
@@ -51,7 +50,7 @@ export default function HomePage() {
         const res = await http.get(`/posts?page=${page}&limit=${POSTS_PER_PAGE}`);
 
         timings.responseReceived = performance.now();
- 
+
 
         if (isMounted) {
           setPosts(res.data.posts || []);
@@ -121,10 +120,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative flex flex-col items-center min-h-[calc(100vh-64px)] w-full">
-      {loading && <LoadingOverlay visible={loading} />}
+    <div className="relative flex flex-col items-center min-h-[calc(100vh-64px)] w-full text-white">
 
-      <div className={`w-full max-w-3xl flex-col items-center py-10 px-4 ${loading ? "opacity-0" : "opacity-100"}`}>
+      <div className={`w-full max-w-3xl flex-col items-center py-10 px-4 opacity-100`}>
 
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white border-l-4 border-[#6BCA6E] pl-4">
