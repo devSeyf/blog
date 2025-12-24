@@ -4,6 +4,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { http } from "../../../api/http";
 import PostCard from "../components/PostCard";
 
+const PostSkeleton = () => (
+  <div className="w-full rounded-xl bg-[#0a0a0a] border border-gray-800 p-6 animate-pulse">
+    <div className="mb-4 h-48 w-full rounded bg-gray-900" />
+    <div className="mb-2 flex justify-between">
+      <div className="h-4 w-16 rounded bg-gray-900" />
+      <div className="h-4 w-24 rounded bg-gray-900" />
+    </div>
+    <div className="mb-2 h-6 w-3/4 rounded bg-gray-900" />
+    <div className="mb-4 h-4 w-full rounded bg-gray-900" />
+    <div className="flex justify-between border-t border-gray-800 pt-4">
+      <div className="h-8 w-24 rounded bg-gray-900" />
+      <div className="h-8 w-20 rounded bg-gray-900" />
+    </div>
+  </div>
+);
+
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,6 +31,9 @@ export default function HomePage() {
     totalPosts: 0,
     hasMore: false
   });
+
+
+
 
   const user = useSelector((s) => s.auth.user);
   const token = useSelector((s) => s.auth.token);
@@ -116,17 +135,25 @@ export default function HomePage() {
         )}
 
         <div className="w-full space-y-6">
-          {posts.map((post) => (
-            <PostCard
-              key={post._id}
-              post={post}
-              user={user}
-              token={token}
-              onVote={handleVote}
-              onEdit={(id) => navigate(`/posts/${id}/edit`)}
-              onDelete={handleDelete}
-            />
-          ))}
+          {loading ? (
+            <>
+              <PostSkeleton />
+              <PostSkeleton />
+              <PostSkeleton />
+            </>
+          ) : (
+            posts.map((post) => (
+              <PostCard
+                key={post._id}
+                post={post}
+                user={user}
+                token={token}
+                onVote={handleVote}
+                onEdit={(id) => navigate(`/posts/${id}/edit`)}
+                onDelete={handleDelete}
+              />
+            ))
+          )}
         </div>
 
         {/* Pagination Controls */}

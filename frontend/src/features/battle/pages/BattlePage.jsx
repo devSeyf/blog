@@ -16,7 +16,7 @@ export default function BattlePage() {
         setVoted(false);
         setAnimatedSide(null);
         try {
-            const res = await http.get("/posts");
+            const res = await http.get("/posts?limit=10");
             const all = res.data.posts || [];
 
             if (all.length < 2) {

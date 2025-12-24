@@ -3,38 +3,48 @@ import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import { protect } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
-import { clearCache } from "../middleware/cache.js";
 import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
 /**
  * GET /api/posts
- * Public: list all posts with pagination - OPTIMIZED AGGREGATION
+ *  
  */
 router.get("/", async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+  console.log('get startttttttt');
 
+  try {
+    console.log('inside try');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+    console.log('get pagee');
     const posts = await Post.find()
       .select("title content category imageUrl votesCount author createdAt")
       .sort({ votesCount: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit);
-
+    console.log('get post after ');
+    console.log('get post after ');
     const totalCount = await Post.countDocuments();
+      console.log('start transfrom json ');
+      res.json({
+        posts,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          totalPosts: totalCount,
+        },
+        
+    }
+  
+  );
+          console.log('after transform json  ');
 
-    res.json({
-      posts,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalCount / limit),
-        totalPosts: totalCount,
-      },
-    });
-  } catch (err) {
+  }
+  
+  catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -59,6 +69,7 @@ router.post(
     });
   },
   async (req, res) => {
+    const startTime = performance.now();
     try {
       const { title, content, category } = req.body;
 
@@ -68,7 +79,7 @@ router.post(
           .json({ message: "title, content, category are required" });
       }
 
-      const post = await Post.create({
+      const post = new Post({
         title,
         content,
         category,
@@ -77,12 +88,23 @@ router.post(
         imagePublicId: req.file?.filename || null,
       });
 
-      const populated = await Post.findById(post._id).populate(
-        "author",
-        "name email"
-      );
-      clearCache("/api/posts");
-      res.status(201).json({ post: populated });
+      await post.save();
+
+      // OPTIMIZATION: Manually construct the response or use execPopulate (if supported) 
+      // instead of a full new findById lookup. 
+      // Actually, we can just attach the user info from req.user
+      const responseObject = post.toObject();
+      responseObject.author = {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email
+      };
+
+       
+      const duration = Math.round(performance.now() - startTime);
+      console.log(`  POST creation took ${duration}ms`);
+
+      res.status(201).json({ post: responseObject });
     } catch (err) {
       res.status(500).json({ message: err.message || "Server error" });
     }
@@ -161,9 +183,10 @@ router.put(
 
       if (req.file) {
         if (post.imagePublicId) {
-          try {
-            await cloudinary.uploader.destroy(post.imagePublicId);
-          } catch { }
+          // OPTIMIZATION: Non-blocking Cloudinary deletion
+          cloudinary.uploader.destroy(post.imagePublicId).catch(err => {
+            console.error("  Cloudinary cleanup error (non-blocking):", err.message);
+          });
         }
         post.imageUrl = req.file.path;
         post.imagePublicId = req.file.filename;
@@ -171,12 +194,15 @@ router.put(
 
       await post.save();
 
-      const populated = await Post.findById(post._id).populate(
-        "author",
-        "name email"
-      );
-      clearCache("/api/posts");
-      res.json({ post: populated });
+      const responseObject = post.toObject();
+      responseObject.author = {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email
+      };
+
+       
+      res.json({ post: responseObject });
     } catch (err) {
       res.status(500).json({ message: err.message || "Server error" });
     }
@@ -194,13 +220,14 @@ router.delete("/:id", protect, async (req, res) => {
     }
 
     if (post.imagePublicId) {
-      try {
-        await cloudinary.uploader.destroy(post.imagePublicId);
-      } catch { }
+      // OPTIMIZATION: Non-blocking Cloudinary deletion
+      cloudinary.uploader.destroy(post.imagePublicId).catch(err => {
+        console.error("  Cloudinary cleanup error (non-blocking):", err.message);
+      });
     }
 
     await post.deleteOne();
-    clearCache("/api/posts");
+     
     res.json({ message: "Post deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message || "Server error" });
@@ -235,7 +262,7 @@ router.post("/:id/vote", protect, async (req, res) => {
         .json({ message: "You already voted for this post" });
     }
 
-    clearCache("/api/posts");
+   
     res.json({ post });
   } catch (err) {
     console.error("Vote error:", err.message);
