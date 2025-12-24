@@ -2,23 +2,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { http } from "../../../api/http";
+import { toast } from "react-hot-toast";
 import PostCard from "../components/PostCard";
-
-const PostSkeleton = () => (
-  <div className="w-full rounded-xl bg-[#0a0a0a] border border-gray-800 p-6 animate-pulse">
-    <div className="mb-4 h-48 w-full rounded bg-gray-900" />
-    <div className="mb-2 flex justify-between">
-      <div className="h-4 w-16 rounded bg-gray-900" />
-      <div className="h-4 w-24 rounded bg-gray-900" />
-    </div>
-    <div className="mb-2 h-6 w-3/4 rounded bg-gray-900" />
-    <div className="mb-4 h-4 w-full rounded bg-gray-900" />
-    <div className="flex justify-between border-t border-gray-800 pt-4">
-      <div className="h-8 w-24 rounded bg-gray-900" />
-      <div className="h-8 w-20 rounded bg-gray-900" />
-    </div>
-  </div>
-);
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -32,17 +17,28 @@ export default function HomePage() {
     hasMore: false
   });
 
-
-
-
   const user = useSelector((s) => s.auth.user);
   const token = useSelector((s) => s.auth.token);
-
   const location = useLocation();
   const navigate = useNavigate();
-
   const refreshKey = location.state?.refresh;
   const POSTS_PER_PAGE = 10;
+
+  const PostSkeleton = () => (
+    <div className="w-full rounded-xl bg-[#0a0a0a] border border-gray-800 p-6 animate-pulse">
+      <div className="mb-4 h-48 w-full rounded bg-gray-900" />
+      <div className="mb-2 flex justify-between">
+        <div className="h-4 w-16 rounded bg-gray-900" />
+        <div className="h-4 w-24 rounded bg-gray-900" />
+      </div>
+      <div className="mb-2 h-6 w-3/4 rounded bg-gray-900" />
+      <div className="mb-4 h-4 w-full rounded bg-gray-900" />
+      <div className="flex justify-between border-t border-gray-800 pt-4">
+        <div className="h-8 w-24 rounded bg-gray-900" />
+        <div className="h-8 w-20 rounded bg-gray-900" />
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +60,6 @@ export default function HomePage() {
           });
         }
       } catch (e) {
-        console.error('Error:', e);
         if (isMounted) setError(e.response?.data?.message || e.message);
       } finally {
         if (isMounted) setLoading(false);
@@ -72,22 +67,17 @@ export default function HomePage() {
     };
 
     fetchPosts();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [page, refreshKey]);
 
   const handleVote = async (postId) => {
     try {
       const res = await http.post(`/posts/${postId}/vote`);
       const updatedPost = res.data.post;
-
-      setPosts((prev) =>
-        prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
-      );
+      setPosts((prev) => prev.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
+      toast.success("Vote updated! ");
     } catch (e) {
-      alert(e.response?.data?.message || e.message);
+      toast.error(e.response?.data?.message || "Vote failed");
     }
   };
 
@@ -96,8 +86,9 @@ export default function HomePage() {
     try {
       await http.delete(`/posts/${postId}`);
       setPosts((prev) => prev.filter((p) => p._id !== postId));
+      toast.success("Post deleted! 🗑️");
     } catch (e) {
-      alert(e.response?.data?.message || e.message);
+      toast.error(e.response?.data?.message || "Delete failed");
     }
   };
 
@@ -114,9 +105,7 @@ export default function HomePage() {
 
   return (
     <div className="relative flex flex-col items-center min-h-[calc(100vh-64px)] w-full text-white">
-
-      <div className={`w-full max-w-3xl flex-col items-center py-10 px-4 opacity-100`}>
-
+      <div className="w-full max-w-3xl flex-col items-center py-10 px-4">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white border-l-4 border-[#6BCA6E] pl-4">
             All Posts
@@ -130,7 +119,7 @@ export default function HomePage() {
 
         {posts.length === 0 && !loading && (
           <div className="w-full rounded border border-dashed border-gray-700 p-8 text-center text-gray-500">
-            No signal detected.
+            No posts found.
           </div>
         )}
 
@@ -156,7 +145,6 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Pagination Controls */}
         {pagination.totalPages > 1 && (
           <div className="flex justify-center items-center gap-4 mt-8">
             <button
@@ -166,13 +154,11 @@ export default function HomePage() {
             >
               ← Previous
             </button>
-
             <div className="flex items-center gap-2">
               <span className="px-4 py-2 text-white font-mono">
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
             </div>
-
             <button
               onClick={() => setPage(p => p + 1)}
               disabled={!pagination.hasMore}

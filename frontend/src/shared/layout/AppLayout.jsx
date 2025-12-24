@@ -7,11 +7,12 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
+import { Toaster } from "react-hot-toast";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -33,31 +34,14 @@ export default function AppLayout() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(() => {
-    const daifAscii = `
-%c
-██████╗  █████╗ ██╗███████╗
-██╔══██╗██╔══██╗██║██╔════╝
-██║  ██║███████║██║█████╗  
-██║  ██║██╔══██║██║██╔══╝  
-██████╔╝██║  ██║██║██║     
-╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     
-    `;
-    console.log(daifAscii, "color: #6BCA6E; font-weight: bold; font-family: monospace;");
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col text-white selection:bg-[#6BCA6E] selection:text-black relative">
- 
-
-      {/* NAVBAR */}
       <Disclosure
         as="nav"
         className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md"
       >
         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
-            {/* mobile menu button */}
             <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
               <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-[#6BCA6E]/10 hover:text-[#6BCA6E] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#6BCA6E]">
                 <span className="absolute -inset-0.5" />
@@ -73,13 +57,11 @@ export default function AppLayout() {
               </DisclosureButton>
             </div>
 
-            {/* logo + main links */}
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
               <div
                 className="flex shrink-0 items-center cursor-pointer"
                 onClick={handleLogoClick}
               >
-                {/* Logo "D" with pulse animation */}
                 <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border border-[#6BCA6E] bg-black shadow-[0_0_10px_rgba(107,202,110,0.5)] transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(107,202,110,0.8)]">
                   <span className="font-bold text-[#6BCA6E] text-xl group-hover:animate-pulse">D</span>
                 </div>
@@ -106,22 +88,19 @@ export default function AppLayout() {
               </div>
             </div>
 
-            {/* right side: auth + notifications + profile */}
-            <div className="  absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <Link
                 to="/posts/new"
-                className=" text-gray-100 hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
+                className="text-gray-100 hidden sm:inline-flex items-center justify-center rounded bg-[#6BCA6E] px-4 py-2 text-sm shadow-sm transition-transform hover:scale-105 hover:bg-[#5abc5d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6BCA6E]"
               >
                 New Post
               </Link>
 
               {user ? (
-                // Profile dropdown when logged in
                 <Menu as="div" className="relative ml-3">
                   <MenuButton className="relative flex items-center justify-center rounded-full p-2 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span className="absolute -inset-1.5" />
                     <span className="sr-only">Open user menu</span>
-                    {/* User icon */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -161,7 +140,6 @@ export default function AppLayout() {
                   </MenuItems>
                 </Menu>
               ) : (
-                // Login / Register when not logged in
                 <div className="ml-3 flex gap-4 text-sm">
                   <Link
                     to="/login"
@@ -181,7 +159,6 @@ export default function AppLayout() {
           </div>
         </div>
 
-        {/* mobile links */}
         <DisclosurePanel className="sm:hidden border-t border-gray-800 bg-black">
           <div className="space-y-1 px-2 pt-2 pb-3">
             {navigation.map((item) => (
@@ -212,24 +189,33 @@ export default function AppLayout() {
         </DisclosurePanel>
       </Disclosure>
 
-      {/* PAGE CONTENT */}
       <main className="relative z-10 flex-grow p-6 min-h-screen">
         <Outlet />
       </main>
 
-      {/* FOOTER */}
       <footer className="relative z-10 border-t border-white/10 bg-black py-6">
         <div className="mx-auto max-w-7xl px-4 flex flex-col items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 flex items-center justify-center rounded-full border border-[#6BCA6E] text-[#6BCA6E] font-bold text-xs">D</div>
             <span className="text-lg font-bold tracking-wider text-white">Blog Battle</span>
           </div>
-
           <div className="text-gray-600 text-xs">
-            &copy; 2025 Blog Battle. All rights reserved.
+            © 2025 Blog Battle. All rights reserved.
           </div>
         </div>
       </footer>
+
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#0a0a0a',
+            color: '#fff',
+            border: '1px solid #6BCA6E',
+          },
+        }}
+      />
     </div>
   );
 }
