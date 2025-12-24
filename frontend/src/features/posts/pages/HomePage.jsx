@@ -26,31 +26,14 @@ export default function HomePage() {
   const POSTS_PER_PAGE = 10;
 
   useEffect(() => {
-    let timerId;
     let isMounted = true;
 
     const fetchPosts = async () => {
       setError(null);
-
-      timerId = setTimeout(() => {
-        if (isMounted) setLoading(true);
-      }, 250);
+      setLoading(true);
 
       try {
-        const timings = {
-          start: performance.now(),
-          requestSent: 0,
-          responseReceived: 0,
-          renderComplete: 0
-        };
-
-        timings.requestSent = performance.now();
-    
-
         const res = await http.get(`/posts?page=${page}&limit=${POSTS_PER_PAGE}`);
-
-        timings.responseReceived = performance.now();
-
 
         if (isMounted) {
           setPosts(res.data.posts || []);
@@ -61,18 +44,10 @@ export default function HomePage() {
             hasMore: false
           });
         }
-
-        // Measure render time
-        requestAnimationFrame(() => {
-          timings.renderComplete = performance.now();
-          console.log('  Render complete at:', Math.round(timings.renderComplete - timings.start), 'ms');
-          console.log('  Total time:', Math.round(timings.renderComplete - timings.start), 'ms');
-        });
       } catch (e) {
-        console.error('  Error:', e);
+        console.error('Error:', e);
         if (isMounted) setError(e.response?.data?.message || e.message);
       } finally {
-        clearTimeout(timerId);
         if (isMounted) setLoading(false);
       }
     };
@@ -81,7 +56,6 @@ export default function HomePage() {
 
     return () => {
       isMounted = false;
-      clearTimeout(timerId);
     };
   }, [page, refreshKey]);
 

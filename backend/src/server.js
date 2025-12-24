@@ -3,10 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import { protect } from "./middleware/auth.js";
-import { requestLogger } from "./middleware/logger.js";
 import postRoutes from "./routes/postRoutes.js";
-
-
 import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
@@ -14,11 +11,8 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(requestLogger);
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
-
-
 
 
 // Health check

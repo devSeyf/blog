@@ -44,7 +44,6 @@ export default function AppLayout() {
 ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     
     `;
     console.log(daifAscii, "color: #6BCA6E; font-weight: bold; font-family: monospace;");
-    console.log("%c> SYSTEM READY. WELCOME TO DAIF'S TERMINAL.", "color: #6BCA6E; font-family: monospace;");
   }, []);
 
   return (

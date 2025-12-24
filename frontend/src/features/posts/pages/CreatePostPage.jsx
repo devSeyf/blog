@@ -26,15 +26,9 @@ export default function CreatePostPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
-    let timerId;
+    setLoading(true); // ← بدون setTimeout
 
     try {
-
-      timerId = setTimeout(() => {
-        setLoading(true);
-      }, 250);
-
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
@@ -49,15 +43,12 @@ export default function CreatePostPage() {
     } catch (e2) {
       setError(e2.response?.data?.message || e2.message);
     } finally {
-      clearTimeout(timerId);
       setLoading(false);
     }
   };
 
-
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-
       <div className="rounded-lg border border-[#6BCA6E]/20 bg-[#0a0a0a] p-8 shadow-[0_0_30px_rgba(107,202,110,0.05)]">
         <div className="mb-8 border-l-4 border-[#6BCA6E] pl-4">
           <h1 className="text-3xl font-bold text-white uppercase tracking-wider">
@@ -74,11 +65,7 @@ export default function CreatePostPage() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          encType="multipart/form-data"
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
           <Input
             label="Title / Subject"
             id="title"
@@ -89,10 +76,7 @@ export default function CreatePostPage() {
           />
 
           <div className="w-full">
-            <label
-              htmlFor="category"
-              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
-            >
+            <label htmlFor="category" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
               Category
             </label>
             <select
@@ -110,10 +94,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className="w-full">
-            <label
-              htmlFor="file"
-              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
-            >
+            <label htmlFor="file" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
               Attachment (Image) <span className="text-[#6BCA6E]">*</span>
             </label>
             <input
@@ -127,10 +108,7 @@ export default function CreatePostPage() {
           </div>
 
           <div className="space-y-1">
-            <label
-              htmlFor="content"
-              className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider"
-            >
+            <label htmlFor="content" className="block text-xs font-mono text-gray-400 mb-1 uppercase tracking-wider">
               Message Content <span className="text-[#6BCA6E]">*</span>
             </label>
             <textarea
@@ -145,8 +123,8 @@ export default function CreatePostPage() {
           </div>
 
           <div className="pt-4 flex gap-4">
-            <Button type="submit" className="flex-1">
-              Create Blog Post
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading ? "Transmitting..." : "Create Blog Post"}
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate("/")}>
               Cancel
